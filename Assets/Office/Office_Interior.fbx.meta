@@ -1,0 +1,289 @@
+fileFormatVersion: 2
+guid: 248bac45f76bb9541b06ccaff01d6eb6
+ModelImporter:
+  serializedVersion: 22200
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Blue
+    second: {fileID: 2100000, guid: 7fac00618f4c31a409f5e7a429780cd5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Chair1
+    second: {fileID: 2100000, guid: 733e020184f714843a0922c185bdc869, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Coat_Rack1
+    second: {fileID: 2100000, guid: 02202657b046d934ab09d2535af2fc1e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Desk1
+    second: {fileID: 2100000, guid: 036bbe10a5e3de748ab119e6f3276c46, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Desk_Lamp1
+    second: {fileID: 2100000, guid: d384105e628b59f4fb9562f21f6e6992, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Floor
+    second: {fileID: 2100000, guid: b54b969a1384c1e48b93fc954feb9e4f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Frames
+    second: {fileID: 2100000, guid: a5b2f157843ef994f83dc2434bbe29d4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Phone1
+    second: {fileID: 2100000, guid: 5400d05dd8d2c0a449c79ebea63b2da2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Red
+    second: {fileID: 2100000, guid: 47d80add4a18d184eaccbf840e2a36a7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ShelvesGlobe
+    second: {fileID: 2100000, guid: 7603267b86637444988dbd7b1a70a5ad, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Walls
+    second: {fileID: 2100000, guid: 6acc6be742ee4454390adf8f18e72989, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Yellow
+    second: {fileID: 2100000, guid: 1ad71519d6dc89943a614a134368b4b6, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: 017a9eec2e994bb5886cbf728a53b90e_RGB_StandwHat_Coat_Rack1_BaseColor
+    second: {fileID: 2800000, guid: 0d0406c427d8dd2479226326a6fc0c12, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: 13fb30098ba74159a483c548bf4158fe_RGB_Lamp_Desk_Lamp1_BaseColor
+    second: {fileID: 2800000, guid: 53ef9dc234662d44eb682788b46502fe, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: 24b409f0f26c4ac091073abc05165d28_N_Lamp_Desk_Lamp1_Normal
+    second: {fileID: 2800000, guid: d18692d1fe9324a4e82696459486cbee, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: 313f1265fc894bdcb50765e41a378b8a_RGB_Floor_BaseColor
+    second: {fileID: 2800000, guid: 8142bbbb86b58284c87d3ebaba984114, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: 31bca2275ea24f3ca5766e24afc7556c_N_Walls_Normal
+    second: {fileID: 2800000, guid: bf998810eb4abdf40b9ec21f5789a92c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: 4b920f4a341e4c7ea973e8881ecaf7cd_RGB_YellowP_Yellow_BaseColor
+    second: {fileID: 2800000, guid: 6ccff545458ae814b92eb6ba6771ec0b, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: 53e4503a9bb148f4af9225819d462cb2_N_Chairs_Chair1_Normal
+    second: {fileID: 2800000, guid: c3e0395544b59754886af2d6401a5df3, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: 5e7ed832b87f48c4962979d29bffb7ab_RGB_Chairs_Chair1_BaseColor
+    second: {fileID: 2800000, guid: a199c0f94f85de449b00153dcc74ea9d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: 60b8ed67d54a4bfbacc91afaeb82ca94_RGB_Frames_Frames_BaseColor
+    second: {fileID: 2800000, guid: 7cc39c3bf6f12df4691f08aebe6628f3, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: 60d247580d0e4147aba89c49e201e0ab_N_Phone_Phone1_Normal
+    second: {fileID: 2800000, guid: b9e70af427ab636498b492aef1ea2d52, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: 658fff4ce4e84c5cb901c794b9c9c369_RGB_Reds_Filing_Cabinets_Plus_BaseColor
+    second: {fileID: 2800000, guid: 1e9b3265d552d4947b12263413b2ed72, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: 7d15d6ae2768459286ac9616cbfdd717_N_Frames_Frames_Normal
+    second: {fileID: 2800000, guid: 4161f711eb27db648b03980ca987921d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: 827d35bbf71b4d3d803102776f29839e_RGB_Desk_Desk1_BaseColor
+    second: {fileID: 2800000, guid: ad2d32eaa88f9a24ca7360ae30193887, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: 987ebdf920354be3853e31ee84a3da21_N_ShelfGlobe_ShelvesGlobe_Normal
+    second: {fileID: 2800000, guid: af7c29eb9cf61a24d86fe2e61b3978ab, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: b0a148e48f3f4e738bb780e0eba0a401_RGB_Phone_Phone1_BaseColor
+    second: {fileID: 2800000, guid: dccc09457cc901140890a23fcd856f45, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: bb483f31ec764784b4138b6b27300f13_RGB_ShelfGlobe_ShelvesGlobe_BaseColor
+    second: {fileID: 2800000, guid: 1c0ac276868f3a44b8a919cf5a031442, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: c8ae4876d52d4c289002aece79ebbb93_N_Desk_Desk1_Normal
+    second: {fileID: 2800000, guid: 22f2476abd5187e4aa490e5f0c7ccbc4, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: c933fe61289148c789b32a01ffc409de_N_Reds_Filing_Cabinets_Plus_Normal
+    second: {fileID: 2800000, guid: 4c962b2944c36e2449f8030b3e0fa35c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: dc834020b64c4ce48fb19175a5dc222a_N_Floor_Normal
+    second: {fileID: 2800000, guid: 0c0420ba25294fc458ce0814af3d1708, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: ea812f0e812b4b05b7826e04e3239155_N_YellowP_Yellow_Normal
+    second: {fileID: 2800000, guid: e8d4825183eb01d45ad892af7c31584c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: f1bdfdbfda8046b2b9d47c7c7af0894c_N_Blue_FilesPlus_Normal
+    second: {fileID: 2800000, guid: 687713e28c24a654990d3eae175f7ae6, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: f461a6b1cb3b45a6b5f1508bde4ea414_RGB_Walls_BaseColor
+    second: {fileID: 2800000, guid: 2f5856723844fdd42a9c3375d8ec3fb1, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: fd261e6db045497bab007d62052a7924_N_StandwHat_Coat_Rack1_Normal
+    second: {fileID: 2800000, guid: d07ea85dcffe0d2489e885df3c337ae8, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: fd530aa8d12d4222b158cc7743eca50f_RGB_Blue_FilesPlus_BaseColor
+    second: {fileID: 2800000, guid: 8c5c80e585af04643b59be34dd425afa, type: 3}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    nodeNameCollisionStrategy: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    strictVertexDataChecks: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  importBlendShapeDeformPercent: 1
+  remapMaterialsIfMaterialImportModeIsNone: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

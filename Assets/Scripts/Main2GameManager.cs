@@ -25,6 +25,10 @@ public class Main2GameManager : MonoBehaviour
     [Tooltip("The parent GameObject holding the Play button and title text")]
     public GameObject mainMenuUI;
 
+    [Header("Ambience")]
+    [Tooltip("Rain background sound — starts when Play is pressed, loops forever")]
+    public AudioSource rainAudioSource;
+
     [Header("Sleep Settings")]
     [Tooltip("Seconds of darkness before the alarm fires — each second plays one tick")]
     public int sleepTicks = 5;
@@ -42,7 +46,13 @@ public class Main2GameManager : MonoBehaviour
     // ── Wired to the Play button OnClick() in the Inspector ──────────────────
     public void OnPlayPressed()
     {
-        Debug.Log("PLAY PRESSED");
+        // Start rain the moment Play is clicked — runs forever from here
+        if (rainAudioSource != null)
+        {
+            rainAudioSource.loop = true;
+            rainAudioSource.Play();
+        }
+
         StartCoroutine(SleepSequence());
     }
 

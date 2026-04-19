@@ -32,6 +32,24 @@ public class ScreenFader : MonoBehaviour
         yield return StartCoroutine(EaseFade(startAlpha, 0f, duration));
     }
 
+    // ── Signal-driven eye close / open ───────────────────────────────────────
+    // Wire these to Timeline Signals via the Signal Receiver on GameManager.
+    // The float you type in the Signal Receiver Inspector = fade duration in seconds.
+
+    // Call this from a "CloseEyes" signal — eyes shut over [duration] seconds
+    public void CloseEyes(float duration)
+    {
+        StopAllCoroutines();
+        StartCoroutine(EaseFade(fadeImage.color.a, 1f, duration));
+    }
+
+    // Call this from an "OpenEyes" signal — eyes open over [duration] seconds
+    public void OpenEyes(float duration)
+    {
+        StopAllCoroutines();
+        StartCoroutine(EaseFade(fadeImage.color.a, 0f, duration));
+    }
+
     // ── Blink wakeup ──────────────────────────────────────────────────────────
     // Pattern: open → close → [LONG shut] → open → close → [MEDIUM shut]
     //        → open → close → [SHORT shut] → final slow open

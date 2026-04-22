@@ -5490,7 +5490,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.000000074505806, z: 0.44803828, w: 0.8940145}
   m_LocalPosition: {x: -0.027, y: -0.037, z: -0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 0.001}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1628685290}
@@ -5515,7 +5515,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c916f01d422342d45a709d16432cd6f5, type: 2}
+  - {fileID: 2100000, guid: 0e3c1cb32337b004c9ffbf767def91c7, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -11645,7 +11645,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.000000074505806, z: 0.44803828, w: 0.8940145}
   m_LocalPosition: {x: -0.0301, y: -0.0019, z: 0.000204}
-  m_LocalScale: {x: 0.54664594, y: 0.29421574, z: 0.54664594}
+  m_LocalScale: {x: 0.54664594, y: 0.29421574, z: 0.001}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1628685290}
@@ -11670,7 +11670,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c916f01d422342d45a709d16432cd6f5, type: 2}
+  - {fileID: 2100000, guid: 0d13cab7ac9ce554abc354be7b5da23e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -19528,8 +19528,8 @@ Transform:
   m_GameObject: {fileID: 966152692}
   serializedVersion: 2
   m_LocalRotation: {x: 0.000000029802322, y: 0.0000000037252903, z: -0.45102197, w: 0.8925129}
-  m_LocalPosition: {x: 0.0069, y: 0.0348, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0.0069, y: 0.0348, z: 0.00044538}
+  m_LocalScale: {x: 1, y: 1, z: 0.010253}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1628685290}
@@ -19554,7 +19554,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c916f01d422342d45a709d16432cd6f5, type: 2}
+  - {fileID: 2100000, guid: b6575935fdb35b347923a61a27c29738, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -24057,7 +24057,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.000000029802322, y: 0.0000000037252903, z: -0.45102197, w: 0.8925129}
   m_LocalPosition: {x: 0.0392, y: -0.0112, z: -0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 0.001}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1628685290}
@@ -24082,7 +24082,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c916f01d422342d45a709d16432cd6f5, type: 2}
+  - {fileID: 2100000, guid: 3fbbef78b5d69fe4cad6a45ccfe671d1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -32242,8 +32242,8 @@ Transform:
   m_GameObject: {fileID: 1607598935}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -6.613e-12, y: 7.0687e-11, z: 0.00044377}
+  m_LocalScale: {x: 1, y: 1, z: 0.01}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1628685290}
@@ -33938,6 +33938,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -6027720092097472302, guid: ec3eda40c32c2a94e95d2a2e3704bb86, type: 3}
       insertIndex: -1
       addedObject: {fileID: 763580523}
+    - targetCorrespondingSourceObject: {fileID: -1824824446595371411, guid: ec3eda40c32c2a94e95d2a2e3704bb86, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2088007244}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ec3eda40c32c2a94e95d2a2e3704bb86, type: 3}
       insertIndex: -1
@@ -34024,7 +34027,6 @@ MonoBehaviour:
     m_Signals:
     - {fileID: 11400000, guid: 32a2cf79e968db34ea666a7adfab0155, type: 2}
     - {fileID: 11400000, guid: 3f54fe166eac87a48b4a3b27a5761d44, type: 2}
-    - {fileID: 11400000, guid: 82ca9a8a3d6b33049953e0c30e07b0ce, type: 2}
     - {fileID: 11400000, guid: 5d760d0d805bdf8418ea69ab53d8bca7, type: 2}
     m_Events:
     - m_PersistentCalls:
@@ -34050,20 +34052,6 @@ MonoBehaviour:
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-    - m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1629195429}
-          m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-          m_MethodName: 
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: 
             m_IntArgument: 0
             m_FloatArgument: 0
             m_StringArgument: 
@@ -38953,8 +38941,9 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 893ce02632cc19746b31ad4dd375266e, type: 2}
     - {fileID: 11400000, guid: ff15e1415565bf449b31507f81134dd9, type: 2}
     - {fileID: 11400000, guid: 5128b41258cbd7f439dcea0ff760ebce, type: 2}
-    - {fileID: 11400000, guid: 3f54fe166eac87a48b4a3b27a5761d44, type: 2}
     - {fileID: 11400000, guid: c92d935f4fa13c048898616e11d86711, type: 2}
+    - {fileID: 11400000, guid: fa8360eba9e895345aaa5693bd7050fc, type: 2}
+    - {fileID: 11400000, guid: 8d536e15b45adfe4f8741a0a7bb1bb78, type: 2}
     m_Events:
     - m_PersistentCalls:
         m_Calls:
@@ -39056,13 +39045,13 @@ MonoBehaviour:
           m_CallState: 2
     - m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1931712288}
-          m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-          m_MethodName: 
+        - m_Target: {fileID: 1931712293}
+          m_TargetAssemblyTypeName: DialogueManager, Assembly-CSharp
+          m_MethodName: PlayLine4
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: 
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
             m_StringArgument: 
@@ -39072,7 +39061,21 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 1931712293}
           m_TargetAssemblyTypeName: DialogueManager, Assembly-CSharp
-          m_MethodName: PlayLine4
+          m_MethodName: PlayLine5
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1931712293}
+          m_TargetAssemblyTypeName: DialogueManager, Assembly-CSharp
+          m_MethodName: PlayLine6
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -39124,10 +39127,18 @@ MonoBehaviour:
   line2Audio: {fileID: 0}
   line3Audio: {fileID: 0}
   line4Audio: {fileID: 0}
-  line1Text: Another night... another dead end.
-  line2Text: "This Ghost... he\u2019s not just good. He\u2019s a goddamn phantom."
-  line3Text: No prints. No footage. No mistakes.
-  line4Text: But every system has a hole. I just need to find it.
+  line5Audio: {fileID: 0}
+  line6Audio: {fileID: 0}
+  line1Text: Another sleepless night. Another dead end on the 409 job.
+  line2Text: Someone cracked First National. Clean. No alarms. No cameras. No sensors
+    triggered. Nothing.
+  line3Text: They're calling him The Ghost. Fitting... because there's nothing here.
+    It's like he was never there at all.
+  line4Text: But ghosts don't exist. Somebody did this. And they made a mistake somewhere.
+    They always do.
+  line5Text: No prints. No footage. No mistakes. 409 like it never happened.No prints.
+    No footage. No mistakes. 409 like it never happened.
+  line6Text: But I have one thing they don't. Close my eyes... and I can see it all.
 --- !u!114 &1931712294
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42393,6 +42404,89 @@ Transform:
   - {fileID: 237937302}
   m_Father: {fileID: 1764952972}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2088007243
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2088007244}
+  - component: {fileID: 2088007246}
+  - component: {fileID: 2088007245}
+  m_Layer: 0
+  m_Name: A4_Paper_StackShape_8_0 (5)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2088007244
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2088007243}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.25311282, y: -0.95977104, z: 0.051246688, w: -0.11021507}
+  m_LocalPosition: {x: 0.0029309057, y: 0.061172746, z: 0.116073966}
+  m_LocalScale: {x: 7.8227954, y: 7.8227954, z: 0.07822797}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 938979058}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: -16.772}
+--- !u!23 &2088007245
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2088007243}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: c916f01d422342d45a709d16432cd6f5, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &2088007246
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2088007243}
+  m_Mesh: {fileID: -5963321451545225558, guid: 152ca1a9979078b46a8ba78ee1385871, type: 3}
 --- !u!1 &2088503580
 GameObject:
   m_ObjectHideFlags: 0

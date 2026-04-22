@@ -18,12 +18,32 @@ public class AttachPaper : MonoBehaviour
     public Vector3 photoHeldRotation = Vector3.zero;
 
     private Transform paperOriginalParent;
+    private Vector3 paperOriginalPosition;
+    private Quaternion paperOriginalRotation;
+    private Vector3 paperOriginalScale;
+
     private Transform photoOriginalParent;
+    private Vector3 photoOriginalPosition;
+    private Quaternion photoOriginalRotation;
+    private Vector3 photoOriginalScale;
 
     void Start()
     {
-        if (paper != null) paperOriginalParent = paper.parent;
-        if (photo != null) photoOriginalParent = photo.parent;
+        if (paper != null)
+        {
+            paperOriginalParent   = paper.parent;
+            paperOriginalPosition = paper.position;
+            paperOriginalRotation = paper.rotation;
+            paperOriginalScale    = paper.localScale;
+        }
+
+        if (photo != null)
+        {
+            photoOriginalParent   = photo.parent;
+            photoOriginalPosition = photo.position;
+            photoOriginalRotation = photo.rotation;
+            photoOriginalScale    = photo.localScale;
+        }
     }
 
     // ── PAPER ──────────────────────────────────────
@@ -52,7 +72,10 @@ public class AttachPaper : MonoBehaviour
     {
         if (paper == null) { Debug.LogError("AttachPaper: paper is NULL"); return; }
         paper.SetParent(paperOriginalParent, true);
-        Debug.Log("AttachPaper: Paper detached");
+        paper.position   = paperOriginalPosition;
+        paper.rotation   = paperOriginalRotation;
+        paper.localScale = paperOriginalScale;
+        Debug.Log("AttachPaper: Paper detached and returned to original position");
     }
 
     // ── PHOTO ──────────────────────────────────────
@@ -81,6 +104,9 @@ public class AttachPaper : MonoBehaviour
     {
         if (photo == null) { Debug.LogError("AttachPaper: photo is NULL"); return; }
         photo.SetParent(photoOriginalParent, true);
-        Debug.Log("AttachPaper: Photo detached");
+        photo.position   = photoOriginalPosition;
+        photo.rotation   = photoOriginalRotation;
+        photo.localScale = photoOriginalScale;
+        Debug.Log("AttachPaper: Photo detached and returned to original position");
     }
 }

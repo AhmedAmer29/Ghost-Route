@@ -85,6 +85,14 @@ public class Main2GameManager : MonoBehaviour
         menuCamera.gameObject.SetActive(false);
         playerCamera.gameObject.SetActive(true);
 
+        // Snap character to first keyframe while screen is still black
+        // so when the screen fades in the character is already in correct pose
+        if (wakeupTimeline != null)
+        {
+            wakeupTimeline.time = 0;
+            wakeupTimeline.Evaluate();
+        }
+
         // 4. Start the clock ticking — it will run forever from here.
         //    The tick plays every second (visuals + audio) even while the screen is black.
         clock.StartTicking();
@@ -106,7 +114,11 @@ public class Main2GameManager : MonoBehaviour
         // 9. Play the wakeup Timeline — screen is now fully clear
         Debug.Log("WAKING UP - playing timeline");
         if (wakeupTimeline != null)
+        {
+            wakeupTimeline.time = 0;
+            wakeupTimeline.Evaluate(); // Snap character to first keyframe immediately
             wakeupTimeline.Play();
+        }
         else
             Debug.LogWarning("Wakeup Timeline is not assigned in Main2GameManager!");
     }

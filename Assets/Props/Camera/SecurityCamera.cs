@@ -22,7 +22,10 @@ public class SecurityCamera : MonoBehaviour
     public float coneAngle = 25f;
 
     [Header("Cone Visual")]
-    public Color coneColor = new Color(1f, 0.1f, 0.1f, 0.35f);
+    public Color coneColor = new Color(1f, 0.02f, 0.02f, 1f);
+    [Tooltip("0 = visible, 1 = invisible")]
+    [Range(0f, 1f)]
+    public float coneTransparency = 0.9f;
     public int coneSegments = 24;
     public bool showCone = true;
 
@@ -55,6 +58,7 @@ public class SecurityCamera : MonoBehaviour
     private int direction = 1;
     private MeshFilter mf;
     private Mesh mesh;
+    private Material coneMaterial;
     private Canvas canvas;
     private TextMeshProUGUI subtitleText;
     private float messageTimer = 0f;
@@ -76,10 +80,10 @@ public class SecurityCamera : MonoBehaviour
             MeshRenderer mr = coneObj.AddComponent<MeshRenderer>();
             mesh = new Mesh();
             mf.mesh = mesh;
-            Material mat = new Material(Shader.Find("Sprites/Default"));
-            mat.color = coneColor;
-            mat.renderQueue = 3000;
-            mr.material = mat;
+            coneMaterial = new Material(Shader.Find("Sprites/Default"));
+            ApplyConeVisualSettings();
+            coneMaterial.renderQueue = 3000;
+            mr.material = coneMaterial;
             mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         }
         SetupUI();
@@ -127,6 +131,7 @@ public class SecurityCamera : MonoBehaviour
             respawnCooldown -= Time.deltaTime;
 
         DetectPlayer();
+        ApplyConeVisualSettings();
         if (showCone) BuildCone();
 
         if (showingMessage)
@@ -195,6 +200,20 @@ public class SecurityCamera : MonoBehaviour
         player.transform.position = spawnPoint.position;
         respawnCooldown = 0f;
         ShowMessage();
+    }
+
+    void ApplyConeVisualSettings()
+    {
+        if (coneMaterial == null) return;
+
+        float coneVisibility = 1f - Mathf.Clamp01(coneTransparency);
+        Color renderColor = new Color(
+            coneColor.r * coneVisibility,
+            coneColor.g * coneVisibility,
+            coneColor.b * coneVisibility,
+            coneVisibility
+        );
+        coneMaterial.color = renderColor;
     }
 
     void BuildCone()

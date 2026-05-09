@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 
 public class CreateRealisticWaterPrefab : EditorWindow
 {
@@ -31,7 +32,16 @@ public class CreateRealisticWaterPrefab : EditorWindow
             AssetDatabase.CreateFolder("Assets", "Materials");
         }
         
-        AssetDatabase.CreateAsset(dirtyWaterMat, $"Assets/Materials/RealisticDirtyWaterMat_{System.DateTime.Now.Ticks}.mat");
+        // Use a consistent name so it doesn't create thousands of materials
+        string matPath = "Assets/Materials/RealisticDirtyWaterMat_Saved.mat";
+        if (AssetDatabase.LoadAssetAtPath<Material>(matPath) == null)
+        {
+            AssetDatabase.CreateAsset(dirtyWaterMat, matPath);
+        }
+        else
+        {
+            dirtyWaterMat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
+        }
 
         // Apply material to plane
         waterPlane.GetComponent<Renderer>().sharedMaterial = dirtyWaterMat;
@@ -39,6 +49,21 @@ public class CreateRealisticWaterPrefab : EditorWindow
         // Parent it to a useful scale
         waterPlane.transform.localScale = new Vector3(10, 1, 10);
         
-        Debug.Log("Realistic Dirty Water created! Check out the Material settings to adjust Wave Speed, Scale, and Murkiness.");
+        // Save it as an actual Prefab so it never disappears
+        if (!AssetDatabase.IsValidFolder("Assets/Prefabs"))
+        {
+            AssetDatabase.CreateFolder("Assets", "Prefabs");
+        }
+        
+        string prefabPath = "Assets/Prefabs/RealisticSewerWater.prefab";
+        GameObject savedPrefab = PrefabUtility.SaveAsPrefabAssetAndConnect(waterPlane, prefabPath, InteractionMode.UserAction);
+        
+        // Mark the scene as dirty so Unity knows you added an object and prompts you to save
+        if (!Application.isPlaying)
+        {
+            EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+        }
+        
+        Debug.Log("Realistic Dirty Water created AND safely saved as a Prefab in Assets/Prefabs!");
     }
 }

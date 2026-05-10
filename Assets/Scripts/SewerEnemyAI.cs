@@ -2,120 +2,223 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(Animator))]
-[RequireComponent(typeof(NavMeshAgent))]
 public class SewerEnemyAI : MonoBehaviour
 {
     [Header("Targeting")]
     public Transform player;
-    
+
     [Header("Distances")]
-    public float triggerDistance = 10f; // How close before he wakes up
-    public float attackDistance = 1.5f; // How close before he punches
-    
+    public float triggerDistance = 20f;
+    public float attackDistance = 6.0f;
+
     [Header("Movement")]
     public float moveSpeed = 4.0f;
-    public float turnSpeed = 5.0f;
+    public float turnSpeed = 10.0f;
 
-    [Header("Timing")]
-    public float standUpDuration = 1.0f;
-    public float attackCooldown = 1.2f;
+    [Header("Attack Launch")]
+    public float attackLaunchSpeed = 150.0f;   // Speed of the lunge to match moveSpeed
+    public float attackLaunchDuration = 0.25f; // How long the lunge lasts
+    public float attackAimOffset = 0f; // Manual rotation offset (try -10 or 10)
+    public float sideCorrection = 1.2f; // How much we pull him to the left while flying
     
-    private Animator animator;
-    private NavMeshAgent agent;
-    private bool hasWokenUp = false;
-    private bool isAttacking = false;
-    private bool canChase = false;
-    private float lockedY;
-    private float attackTimer;
-    
-    void Start()
+    private Vector3 _attackLaunchDirection;
+    private float _attackLaunchTimer;
+    private bool _isLaunching;
+
+    private enum Phase
     {
-        animator = GetComponent<Animator>();
-        agent = GetComponent<NavMeshAgent>();
-        
-        animator.applyRootMotion = false;
-        lockedY = transform.position.y;
-        
-        // Configure Agent
-        agent.speed = moveSpeed;
-        agent.angularSpeed = turnSpeed * 100f; // Agent uses degrees per second
-        agent.stoppingDistance = attackDistance;
-        
-        // Auto-find player if you forget to assign it
-        if (player == null && Camera.main != null)
+        WaitingToStandUp,
+        StandingUp,
+        Running,
+        Attacking,
+        FightingIdle
+    }
+
+    private Animator _anim;
+    private NavMeshAgent _agent;
+    private Phase _phase = Phase.WaitingToStandUp;
+
+    private static readonly int ParamIsRunning = Animator.StringToHash("IsRunning");
+    private static readonly int ParamAttack = Animator.StringToHash("Attack");
+    private static readonly int ParamStartRunning = Animator.StringToHash("StartRunning");
+
+    private float _logTimer = 0f;
+    private const float LOG_INTERVAL = 0.4f;
+
+    void Awake()
+    {
+        AudioListener[] listeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
+        foreach (var l in listeners)
         {
-            player = Camera.main.transform;
+            if (l.gameObject.tag != "MainCamera") l.enabled = false;
         }
     }
-    
+
+    void Start()
+    {
+        _anim = GetComponent<Animator>();
+        _anim.applyRootMotion = false;
+
+        _agent = GetComponent<NavMeshAgent>();
+        if (_agent == null)
+            _agent = gameObject.AddComponent<NavMeshAgent>();
+        
+        _agent.enabled = false;
+        
+        if (player == null && Camera.main != null)
+            player = Camera.main.transform;
+    }
+
     void Update()
     {
         if (player == null) return;
 
-        // Keep him from floating away by forcing his height
-        Vector3 currentPos = transform.position;
-        currentPos.y = lockedY;
-        agent.Warp(currentPos); // Use Warp to move NavMeshAgents directly without breaking pathing
-
-        if (attackTimer > 0f)
+        // MANUALLY HANDLE THE ATTACK LUNGE
+        if (_isLaunching)
         {
-            attackTimer -= Time.deltaTime;
-        }
-        
-        float distance = Vector3.Distance(transform.position, player.position);
-        
-        // 1. Wake up if player gets close!
-        if (!hasWokenUp && distance <= triggerDistance)
-        {
-            hasWokenUp = true;
-            animator.SetTrigger("WakeUp"); // Sitting -> Stand Up
-            Invoke(nameof(BeginChase), standUpDuration);
-        }
-        
-        // 2. Chase and Attack logic
-        if (hasWokenUp && canChase && !isAttacking)
-        {
-            if (distance > attackDistance)
+            _attackLaunchTimer += Time.deltaTime;
+            if (_attackLaunchTimer >= attackLaunchDuration)
             {
-                // Chase the player using the NavMesh! (Avoids walls)
-                agent.isStopped = false;
-                agent.SetDestination(player.position);
-                animator.SetBool("IsRunning", true); // Run
+                _isLaunching = false;
             }
-            else if (attackTimer <= 0f)
+            else
             {
-                // 3. Attack! (Flying Knee Punch)
-                agent.isStopped = true; // Stop moving
+                // Move Forward
+                Vector3 forwardMove = _attackLaunchDirection * attackLaunchSpeed * Time.deltaTime;
                 
-                // Force rotation to face player when attacking
-                Vector3 direction = (player.position - transform.position).normalized;
-                direction.y = 0;
-                if (direction != Vector3.zero)
+                // Pull Left (Side Correction)
+                Vector3 sideDir = Vector3.Cross(Vector3.up, _attackLaunchDirection); // This is his Right
+                Vector3 sideMove = -sideDir * sideCorrection * Time.deltaTime; // Negative is Left
+                
+                Vector3 totalMove = forwardMove + sideMove;
+                
+                // Apply to Transform
+                transform.position += totalMove;
+                
+                // Also update Agent's internal position so it stays in sync
+                if (_agent.enabled)
                 {
-                    transform.rotation = Quaternion.LookRotation(direction);
+                    _agent.nextPosition = transform.position;
                 }
 
-                animator.SetTrigger("Attack"); 
-                animator.SetBool("IsRunning", false);
-                isAttacking = true;
-                attackTimer = attackCooldown;
-                
-                // Reset back to idle/chase after the punch
-                Invoke(nameof(ResetAttack), 0.6f);
+                Physics.SyncTransforms();
             }
+        }
+
+        Vector3 playerPos = player.position;
+        Vector3 myPos = transform.position;
+        playerPos.y = 0;
+        myPos.y = 0;
+        float dist = Vector3.Distance(myPos, playerPos);
+        AnimatorStateInfo stateInfo = _anim.GetCurrentAnimatorStateInfo(0);
+
+        // Logging
+        _logTimer += Time.deltaTime;
+        if (_logTimer >= LOG_INTERVAL || _phase == Phase.Attacking) // Log EVERY frame during attack
+        {
+            if (_phase == Phase.Attacking)
+            {
+                Vector3 toPlayer = (player.position - transform.position).normalized;
+                toPlayer.y = 0;
+                float angleError = Vector3.Angle(transform.forward, toPlayer);
+                Debug.Log($"[ATTACK DIAGNOSTIC] Time:{Time.time:F2}, Pos:{transform.position}, Dist:{dist:F2}, AngleToPlayer:{angleError:F2}, Launching:{_isLaunching}, LaunchDir:{_attackLaunchDirection}");
+            }
+            else if (_logTimer >= LOG_INTERVAL)
+            {
+                _logTimer = 0f;
+                Debug.Log($"[{Time.time:F2}] Phase:{_phase}, Dist:{dist:F2}");
+            }
+        }
+
+        switch (_phase)
+        {
+            case Phase.WaitingToStandUp:
+                if (dist <= triggerDistance)
+                {
+                    _anim.SetTrigger(ParamStartRunning);
+                    _phase = Phase.StandingUp;
+                }
+                break;
+
+            case Phase.StandingUp:
+                if (stateInfo.IsName("Standing Up") && stateInfo.normalizedTime >= 0.9f)
+                {
+                    _agent.enabled = true;
+                    _agent.updatePosition = true;
+                    _agent.updateRotation = true;
+                    _agent.speed = moveSpeed;
+                    _agent.Warp(transform.position);
+                    _agent.SetDestination(player.position);
+                    _anim.SetBool(ParamIsRunning, true);
+                    _phase = Phase.Running;
+                }
+                break;
+
+            case Phase.Running:
+                if (dist <= attackDistance)
+                {
+                    StartAttackLunge();
+                }
+                else if (_agent.isOnNavMesh)
+                {
+                    _agent.SetDestination(player.position);
+                }
+                break;
+
+            case Phase.Attacking:
+                if (stateInfo.IsName("Fighting Idle"))
+                {
+                    FinishAttack();
+                }
+                break;
         }
     }
 
-    void BeginChase()
+    void StartAttackLunge()
     {
-        canChase = true;
-        animator.SetBool("IsRunning", true);
+        _phase = Phase.Attacking;
+
+        // Snap rotation
+        FacePlayer();
+
+        // Capture Direction
+        _attackLaunchDirection = (player.position - transform.position).normalized;
+        _attackLaunchDirection.y = 0;
+        
+        _attackLaunchTimer = 0f;
+        _isLaunching = true;
+
+        // FULLY DISABLE AGENT so it doesn't fight our manual position updates
+        _agent.isStopped = true;
+        _agent.enabled = false; 
+
+        // Animation
+        _anim.SetBool(ParamIsRunning, false);
+        _anim.applyRootMotion = false; 
+        _anim.CrossFadeInFixedTime("Flying Knee Kick", 0.05f);
     }
-    
-    void ResetAttack()
+
+    void FinishAttack()
     {
-        isAttacking = false;
-        // The script loops back to Update. If distance > attackDistance, he runs again.
-        // If distance <= attackDistance, he stays in Fighting Idle until attackCooldown is up.
+        _phase = Phase.FightingIdle;
+        _isLaunching = false;
+        _anim.applyRootMotion = false;
+
+        // Re-enable agent
+        _agent.enabled = true;
+        _agent.isStopped = false;
+        _agent.updatePosition = true;
+        _agent.Warp(transform.position);
+    }
+
+    void FacePlayer()
+    {
+        Vector3 dir = (player.position - transform.position).normalized;
+        dir.y = 0;
+        if (dir != Vector3.zero)
+        {
+            Quaternion rot = Quaternion.LookRotation(dir);
+            transform.rotation = rot * Quaternion.Euler(0, attackAimOffset, 0);
+        }
     }
 }

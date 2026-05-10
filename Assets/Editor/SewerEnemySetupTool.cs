@@ -43,10 +43,7 @@ public static class SewerEnemySetupTool
 
         ai.triggerDistance = 10f;
         ai.attackDistance = 1.8f;
-        ai.moveSpeed = 4f;
         ai.turnSpeed = 5f;
-        ai.standUpDuration = 1f;
-        ai.attackCooldown = 1.2f;
 
         Selection.activeGameObject = selectedObject;
         EditorUtility.SetDirty(selectedObject);

@@ -18,12 +18,22 @@ public class SewerEnemyAI : MonoBehaviour
     [Header("Attack Launch")]
     public float attackLaunchSpeed = 150.0f;   // Speed of the lunge to match moveSpeed
     public float attackLaunchDuration = 0.25f; // How long the lunge lasts
+    public float attackLaunchDelayNorm = 0.47f; // Delay before lunge starts (0.47 = ~frame 38 of 81)
     public float attackAimOffset = 0f; // Manual rotation offset (try -10 or 10)
     public float sideCorrection = 1.2f; // How much we pull him to the left while flying
+    [Range(5f, 100f)] public float attackKnockback = 35.0f; // How much the player is pushed back
+    [Range(0f, 10f)] public float attackVerticalLift = 3.0f; // Upward pop on hit
+    [Range(0f, 2f)] public float attackStunDuration = 0.5f; // How long the player loses control
+    public float knockbackDistance = 1.8f; // Distance to trigger the push
+
+    [Header("Ground Snap")]
+    public float groundOffset = 0.05f;
     
     private Vector3 _attackLaunchDirection;
     private float _attackLaunchTimer;
     private bool _isLaunching;
+    private bool _hasHitPlayer; // Track if we already pushed the player this attack
+    private bool _hasLaunchedThisAttack; // Track if the lunge started
 
     private enum Phase
     {
@@ -31,6 +41,7 @@ public class SewerEnemyAI : MonoBehaviour
         StandingUp,
         Running,
         Attacking,
+        Recovering,
         FightingIdle
     }
 
@@ -65,13 +76,35 @@ public class SewerEnemyAI : MonoBehaviour
         
         _agent.enabled = false;
         
-        if (player == null && Camera.main != null)
-            player = Camera.main.transform;
+        if (player == null)
+        {
+            if (Camera.main != null)
+            {
+                // Try to find the root player body (the one with the CharacterController or Receiver)
+                PlayerKnockbackReceiver receiver = FindAnyObjectByType<PlayerKnockbackReceiver>();
+                if (receiver != null)
+                {
+                    player = receiver.transform;
+                }
+                else
+                {
+                    CharacterController cc = FindAnyObjectByType<CharacterController>();
+                    if (cc != null) player = cc.transform;
+                    else player = Camera.main.transform;
+                }
+            }
+        }
     }
 
     void Update()
     {
         if (player == null) return;
+
+        Vector3 p1 = player.position;
+        Vector3 p2 = transform.position;
+        p1.y = 0;
+        p2.y = 0;
+        float dist = Vector3.Distance(p1, p2);
 
         // MANUALLY HANDLE THE ATTACK LUNGE
         if (_isLaunching)
@@ -81,7 +114,16 @@ public class SewerEnemyAI : MonoBehaviour
             {
                 _isLaunching = false;
             }
-            else
+
+            // Check for impact with player
+            if (!_hasHitPlayer && dist <= knockbackDistance)
+            {
+                _hasHitPlayer = true;
+                ApplyKnockbackToPlayer();
+            }
+
+            // Stop moving forward if we hit the player (adds impact weight)
+            if (!_hasHitPlayer || _attackLaunchTimer < attackLaunchDuration * 0.4f)
             {
                 // Move Forward
                 Vector3 forwardMove = _attackLaunchDirection * attackLaunchSpeed * Time.deltaTime;
@@ -100,34 +142,19 @@ public class SewerEnemyAI : MonoBehaviour
                 {
                     _agent.nextPosition = transform.position;
                 }
-
-                Physics.SyncTransforms();
             }
+
+            Physics.SyncTransforms();
         }
 
-        Vector3 playerPos = player.position;
-        Vector3 myPos = transform.position;
-        playerPos.y = 0;
-        myPos.y = 0;
-        float dist = Vector3.Distance(myPos, playerPos);
         AnimatorStateInfo stateInfo = _anim.GetCurrentAnimatorStateInfo(0);
 
-        // Logging
+        // Simple Logging only for phase changes
         _logTimer += Time.deltaTime;
-        if (_logTimer >= LOG_INTERVAL || _phase == Phase.Attacking) // Log EVERY frame during attack
+        if (_logTimer >= LOG_INTERVAL)
         {
-            if (_phase == Phase.Attacking)
-            {
-                Vector3 toPlayer = (player.position - transform.position).normalized;
-                toPlayer.y = 0;
-                float angleError = Vector3.Angle(transform.forward, toPlayer);
-                Debug.Log($"[ATTACK DIAGNOSTIC] Time:{Time.time:F2}, Pos:{transform.position}, Dist:{dist:F2}, AngleToPlayer:{angleError:F2}, Launching:{_isLaunching}, LaunchDir:{_attackLaunchDirection}");
-            }
-            else if (_logTimer >= LOG_INTERVAL)
-            {
-                _logTimer = 0f;
-                Debug.Log($"[{Time.time:F2}] Phase:{_phase}, Dist:{dist:F2}");
-            }
+            _logTimer = 0f;
+            Debug.Log($"[{Time.time:F2}] Phase:{_phase}, Dist:{dist:F2}");
         }
 
         switch (_phase)
@@ -166,10 +193,46 @@ public class SewerEnemyAI : MonoBehaviour
                 break;
 
             case Phase.Attacking:
-                if (stateInfo.IsName("Fighting Idle"))
+                // Start the lunge movement after the wind-up (frame 38 / 0.47 normalized time)
+                if (!_hasLaunchedThisAttack && stateInfo.IsName("Flying Knee Kick") && stateInfo.normalizedTime >= attackLaunchDelayNorm)
                 {
-                    FinishAttack();
+                    _isLaunching = true;
+                    _hasLaunchedThisAttack = true;
+                    Debug.Log($"[ATTACK] Lunge launched at normalizedTime: {stateInfo.normalizedTime:F2}");
                 }
+
+                // Wait for the kick to finish
+                if (stateInfo.IsName("Flying Knee Kick") && stateInfo.normalizedTime >= 0.95f)
+                {
+                    StartRecovery();
+                }
+                break;
+
+            case Phase.Recovering:
+                // Just force Y position relative to the ground under him
+                if (NavMesh.SamplePosition(transform.position, out NavMeshHit rHit, 3.0f, NavMesh.AllAreas))
+                {
+                    Vector3 p = transform.position;
+                    p.y = rHit.position.y + groundOffset;
+                    transform.position = p;
+                }
+
+                // Wait for the recovery animation to finish
+                if (stateInfo.IsName("Standing Interpolation") && stateInfo.normalizedTime >= 0.95f)
+                {
+                    _phase = Phase.FightingIdle;
+                }
+                break;
+
+            case Phase.FightingIdle:
+                // Keep him on the invisible floor even while idling
+                if (NavMesh.SamplePosition(transform.position, out NavMeshHit fHit, 3.0f, NavMesh.AllAreas))
+                {
+                    Vector3 p = transform.position;
+                    p.y = fHit.position.y + groundOffset; 
+                    transform.position = p;
+                }
+                FacePlayer();
                 break;
         }
     }
@@ -186,7 +249,9 @@ public class SewerEnemyAI : MonoBehaviour
         _attackLaunchDirection.y = 0;
         
         _attackLaunchTimer = 0f;
-        _isLaunching = true;
+        _isLaunching = false;
+        _hasLaunchedThisAttack = false;
+        _hasHitPlayer = false; // Reset hit flag
 
         // FULLY DISABLE AGENT so it doesn't fight our manual position updates
         _agent.isStopped = true;
@@ -198,17 +263,63 @@ public class SewerEnemyAI : MonoBehaviour
         _anim.CrossFadeInFixedTime("Flying Knee Kick", 0.05f);
     }
 
-    void FinishAttack()
+    void StartRecovery()
     {
-        _phase = Phase.FightingIdle;
+        _phase = Phase.Recovering;
         _isLaunching = false;
         _anim.applyRootMotion = false;
 
-        // Re-enable agent
+        // Play the specific recovery animation you found
+        _anim.CrossFadeInFixedTime("Standing Interpolation", 0.1f);
+
+        // Re-enable agent but keep it stopped
         _agent.enabled = true;
-        _agent.isStopped = false;
+        _agent.isStopped = true;
         _agent.updatePosition = true;
-        _agent.Warp(transform.position);
+
+        // Find the floor and lift him slightly so he doesn't phase through
+        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 2.0f, NavMesh.AllAreas))
+        {
+            Vector3 groundPos = hit.position;
+            groundPos.y += 0.05f; // Tiny lift to prevent phasing
+            _agent.Warp(groundPos);
+        }
+        else
+        {
+            _agent.Warp(transform.position);
+        }
+    }
+
+    void ApplyKnockbackToPlayer()
+    {
+        if (player == null) return;
+
+        // Direction away from the enemy at the moment of impact
+        Vector3 pushDir = (player.position - transform.position).normalized;
+        pushDir.y = 0; // Keep horizontal push flat
+        
+        if (pushDir == Vector3.zero) 
+            pushDir = transform.forward; // Fallback if exactly overlapping
+
+        // Pass knockback down to player receiver
+        if (player.TryGetComponent<PlayerKnockbackReceiver>(out PlayerKnockbackReceiver receiver))
+        {
+            receiver.ApplyKnockback(pushDir, attackKnockback, attackVerticalLift, attackStunDuration);
+            Debug.Log($"[IMPACT] Sent knockback to player receiver! Str: {attackKnockback}, Lift: {attackVerticalLift}");
+        }
+        else
+        {
+            // Fallback for missing receiver (direct impulse)
+            if (player.TryGetComponent<CharacterController>(out CharacterController cc))
+            {
+                cc.Move((pushDir * attackKnockback + Vector3.up * attackVerticalLift) * 0.05f); // Simple jitter
+            }
+            else
+            {
+                player.position += (pushDir * attackKnockback + Vector3.up * attackVerticalLift) * 0.05f;
+            }
+            Debug.LogWarning("[IMPACT] Player missing PlayerKnockbackReceiver. Using fallback jitter.");
+        }
     }
 
     void FacePlayer()

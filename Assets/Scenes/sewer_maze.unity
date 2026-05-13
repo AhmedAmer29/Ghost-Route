@@ -217,6 +217,7 @@ GameObject:
   - component: {fileID: 55519292}
   - component: {fileID: 55519291}
   - component: {fileID: 55519290}
+  - component: {fileID: 55519293}
   m_Layer: 0
   m_Name: Main Camera (1)
   m_TagString: MainCamera
@@ -298,6 +299,33 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!114 &55519293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 55519289}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c9f0355da8b8e9418867764e7892e73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  knockbackDecay: 6
+  minKnockbackSpeed: 0.3
+  shakeIntensity: 100
+  shakeDuration: 10
+  componentsToDisable: []
+  OnKnockbackStart:
+    m_PersistentCalls:
+      m_Calls: []
+  OnKnockbackEnd:
+    m_PersistentCalls:
+      m_Calls: []
+  OnParried:
+    m_PersistentCalls:
+      m_Calls: []
+  isParrying: 0
 --- !u!1 &59940945
 GameObject:
   m_ObjectHideFlags: 0
@@ -4174,15 +4202,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30a426789208f1641934f05d9263c1bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 55519292}
+  player: {fileID: 539150026}
   triggerDistance: 700
   attackDistance: 5.8
   moveSpeed: 150
   turnSpeed: 5
   attackLaunchSpeed: 0
   attackLaunchDuration: 0.5
+  attackLaunchDelayNorm: 0.47
   attackAimOffset: 0
   sideCorrection: -0.7
+  attackKnockback: 67.9
+  attackVerticalLift: 3
+  attackStunDuration: 0.5
+  knockbackDistance: 10
+  groundOffset: 0.05
 --- !u!95 &1688050414
 Animator:
   serializedVersion: 5

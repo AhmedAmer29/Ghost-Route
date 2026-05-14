@@ -47,7 +47,16 @@ public class DoorInteraction : MonoBehaviour
         _cam = FindGameCamera();
 
         EnsureCollider();
-        _doorColliders = GetComponentsInChildren<Collider>(true);
+
+        // Collect colliders on this object and all children
+        var cols = new System.Collections.Generic.List<Collider>(GetComponentsInChildren<Collider>(true));
+        // Also include any collider sitting directly on a parent (e.g. a doorframe parent)
+        if (transform.parent != null)
+        {
+            var parentCol = transform.parent.GetComponent<Collider>();
+            if (parentCol != null) cols.Add(parentCol);
+        }
+        _doorColliders = cols.ToArray();
 
         EnsurePromptUI();
         SetPromptVisible(false);
@@ -73,9 +82,8 @@ public class DoorInteraction : MonoBehaviour
         _isOpen = !_isOpen;
         _targetAngle = _isOpen ? openAngle : 0f;
 
-        // Re-enable colliders the moment the door starts closing
-        if (!_isOpen)
-            SetCollidersEnabled(true);
+        // Immediately make the door passable when opening, solid when closing
+        SetCollidersEnabled(!_isOpen);
 
         if (promptLabel != null)
             promptLabel.text = _isOpen ? "Press <b>E</b> to close" : "Press <b>E</b> to open";
@@ -97,18 +105,13 @@ public class DoorInteraction : MonoBehaviour
 
         transform.rotation = swing * _closedWorldRot;
         transform.position = hingeWorld + swing * (_closedWorldPos - hingeWorld);
-
-        // Disable colliders only once the door is fully open so the player can walk through
-        bool fullyOpen = Mathf.Approximately(_currentAngle, openAngle);
-        if (fullyOpen && _isOpen)
-            SetCollidersEnabled(false);
     }
 
-    void SetCollidersEnabled(bool enabled)
+    void SetCollidersEnabled(bool solid)
     {
         if (_doorColliders == null) return;
         foreach (Collider col in _doorColliders)
-            col.enabled = enabled;
+            col.isTrigger = !solid;
     }
 
     // ── Detection ─────────────────────────────────────────────────────────

@@ -63,6 +63,10 @@ public class PlayerCamera : MonoBehaviour
         Cursor.visible   = false;
         _xRotation       = 0f;
 
+        // Ensure only this camera's AudioListener is active (scene Main Camera often has one too)
+        foreach (var al in FindObjectsOfType<AudioListener>())
+            if (al.gameObject != gameObject) al.enabled = false;
+
         float scale  = target != null ? target.lossyScale.y : 1f;
         _eyeBase     = eyeHeight * scale;
         _currentEyeH = _eyeBase;

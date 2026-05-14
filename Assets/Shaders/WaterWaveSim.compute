@@ -1,0 +1,55 @@
+#pragma kernel WaveSim
+#pragma kernel InjectSplash
+
+RWTexture2D<float> _Height;
+RWTexture2D<float> _Velocity;
+uint _Width;
+uint _HeightVal;
+float _WaveSpeedSq;
+float _Damping;
+float _DeltaTime;
+
+[numthreads(8, 8, 1)]
+void WaveSim(uint3 id : SV_DispatchThreadID)
+{
+    uint x = id.x;
+    uint y = id.y;
+    if (x >= _Width || y >= _HeightVal) return;
+
+    float center = _Height[uint2(x, y)];
+    float left   = x > 0             ? _Height[uint2(x - 1, y)] : center;
+    float right  = x < _Width - 1    ? _Height[uint2(x + 1, y)] : center;
+    float down   = y > 0             ? _Height[uint2(x, y - 1)] : center;
+    float up     = y < _HeightVal - 1 ? _Height[uint2(x, y + 1)] : center;
+
+    float laplacian = left + right + down + up - 4.0 * center;
+
+    float vel = _Velocity[uint2(x, y)];
+    vel += laplacian * _WaveSpeedSq * _DeltaTime;
+    vel *= _Damping;
+    center += vel * _DeltaTime;
+
+    _Height[uint2(x, y)] = center;
+    _Velocity[uint2(x, y)] = vel;
+}
+
+RWTexture2D<float> _Target;
+uint2 _InjCenter;
+float _InjForce;
+float _InjRadius;
+
+[numthreads(8, 8, 1)]
+void InjectSplash(uint3 id : SV_DispatchThreadID)
+{
+    int2 pixel = (int2)id.xy;
+    float2 delta = pixel - (float2)_InjCenter;
+    float dist = length(delta);
+
+    if (dist < _InjRadius)
+    {
+        float t = dist / _InjRadius;
+        float strength = cos(t * 3.14159 * 0.5);
+        float weight = strength * strength * _InjForce;
+        _Target[pixel] += weight;
+    }
+}

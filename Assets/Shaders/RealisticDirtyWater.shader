@@ -24,11 +24,17 @@ Shader "Custom/RealisticDirtyWater"
         _WaveScale ("Ripple Scale", Float) = 1.5
         _WaveSpeed ("Current Speed", Vector) = (0.05, 0.1, 0, 0)
         _NormalIntensity ("Normals Strength", Range(0, 5)) = 1.5
+        
+        [Header(Splash Displacement)]
+        _DisplacementTex ("Wave Displacement", 2D) = "black" {}
+        _DisplacementArea ("Displacement Area (x, y, w, h)", Vector) = (0,0,1,1)
+        _DisplacementHeight ("Displacement Scale", Float) = 0.1
     }
     SubShader
     {
         Tags { "Queue"="Transparent-1" "RenderType"="Transparent" "IgnoreProjector"="True" }
         LOD 400
+        Cull Off // Fixes invisible water when camera is underwater
 
         // Grab screen behind water for hyper-realistic refraction processing
         GrabPass { "_WaterRefraction" }
@@ -54,6 +60,10 @@ Shader "Custom/RealisticDirtyWater"
         sampler2D _CameraDepthTexture;
         sampler2D _WaterRefraction;
         float4 _WaterRefraction_TexelSize;
+        
+        sampler2D _DisplacementTex;
+        float4 _DisplacementArea;
+        float _DisplacementHeight;
 
         // High-end mathematical noise algorithm for fluid organics
         float hash(float2 p) { return frac(sin(dot(p, float2(12.9898, 78.233))) * 43758.5453123); }
@@ -86,6 +96,12 @@ Shader "Custom/RealisticDirtyWater"
             // Simulate rolling liquid volume instead of just flat bumps
             float wave = sin(uv.x * 2.0 + time * _WaveSpeed.x * 5.0) * cos(uv.y * 2.0 + time * _WaveSpeed.y * 5.0);
             v.vertex.y += wave * 0.05 + (fbm(uv + time * _WaveSpeed) * 0.05);
+            
+            // Splash displacement overlay
+            float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
+            float2 dispUV = (worldPos.xz - _DisplacementArea.xy) / _DisplacementArea.zw;
+            float disp = tex2Dlod(_DisplacementTex, float4(dispUV, 0, 0)).r * _DisplacementHeight;
+            v.vertex.y += disp;
         }
 
         void surf (Input IN, inout SurfaceOutputStandard o)

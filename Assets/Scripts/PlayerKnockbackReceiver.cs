@@ -90,7 +90,7 @@ public class PlayerKnockbackReceiver : MonoBehaviour
         {
             _stunTimer -= Time.deltaTime;
 
-            if (_cc != null)
+            if (_cc != null && _cc.enabled)
             {
                 _cc.Move(_knockbackVelocity * Time.deltaTime);
             }

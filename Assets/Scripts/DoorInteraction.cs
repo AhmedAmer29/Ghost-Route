@@ -5,11 +5,17 @@ using UnityEngine.UI;
 public class DoorInteraction : MonoBehaviour
 {
     [Header("Animation")]
+    [Tooltip("Degrees the door swings open (positive = one way, negative = other way)")]
     [SerializeField] float openAngle = 90f;
     [SerializeField] float animationSpeed = 2.5f;
 
+    [Header("Hinge")]
+    [Tooltip("Local-space offset from the door's center to the hinge edge.\n" +
+             "X = half the door width (positive or negative depending on hinge side).\n" +
+             "Use Scene view gizmo to verify. Default 0 = center pivot.")]
+    [SerializeField] Vector3 hingeLocalOffset = new Vector3(-0.44f, 0f, 0f);
+
     [Header("Interaction")]
-    [Tooltip("How close the player must be to see the prompt and press E")]
     [SerializeField] float interactDistance = 2.5f;
 
     [Header("Prompt UI (optional — auto-created if empty)")]
@@ -18,19 +24,25 @@ public class DoorInteraction : MonoBehaviour
     bool _isOpen;
     float _currentAngle;
     float _targetAngle;
-    Quaternion _closedRotation;
+
+    Vector3 _closedWorldPos;
+    Quaternion _closedWorldRot;
+    Vector3 _hingeAxis;
+
     Transform _player;
     Camera _cam;
     bool _promptVisible;
 
     void Start()
     {
-        _closedRotation = transform.localRotation;
+        // Capture door's rest state in WORLD space so complex parent rotations don't interfere
+        _closedWorldPos = transform.position;
+        _closedWorldRot = transform.rotation;
 
-        // Find player — works with or without "Player" tag
+        // The hinge axis is the door's own "up" direction in world space
+        _hingeAxis = transform.up;
+
         _player = FindPlayer();
-
-        // Find the actual game camera (PlayerCamera component beats Camera.main)
         _cam = FindGameCamera();
 
         EnsureCollider();
@@ -51,49 +63,10 @@ public class DoorInteraction : MonoBehaviour
         AnimateDoor();
     }
 
-    // ── Helpers ────────────────────────────────────────────────────────────
-
-    Transform FindPlayer()
-    {
-        // Prefer tag, fall back to PlayerMovement component
-        GameObject tagged = GameObject.FindWithTag("Player");
-        if (tagged != null) return tagged.transform;
-
-        var movement = FindObjectOfType<PlayerMovement>();
-        return movement != null ? movement.transform : null;
-    }
-
-    Camera FindGameCamera()
-    {
-        // Prefer the camera that has a PlayerCamera controller on it
-        var playerCam = FindObjectOfType<PlayerCamera>();
-        if (playerCam != null) return playerCam.GetComponent<Camera>();
-
-        // Fall back to Camera.main (tagged MainCamera)
-        return Camera.main;
-    }
-
-    bool IsPlayerNearby()
-    {
-        if (_player == null) return false;
-        return Vector3.Distance(transform.position, _player.position) <= interactDistance;
-    }
-
-    bool IsLookingAtDoor()
-    {
-        if (_cam == null) return true; // no camera — allow interaction by proximity alone
-
-        Ray ray = _cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-        if (!Physics.Raycast(ray, out RaycastHit hit, interactDistance + 1f, ~0, QueryTriggerInteraction.Ignore))
-            return false;
-
-        return hit.collider.transform == transform || hit.collider.transform.IsChildOf(transform)
-            || transform.IsChildOf(hit.collider.transform);
-    }
+    // ── Core ──────────────────────────────────────────────────────────────
 
     void ToggleDoor()
     {
-        // Require the player to be roughly facing the door before opening
         if (!IsLookingAtDoor()) return;
 
         _isOpen = !_isOpen;
@@ -107,34 +80,81 @@ public class DoorInteraction : MonoBehaviour
     {
         if (Mathf.Approximately(_currentAngle, _targetAngle)) return;
 
-        _currentAngle = Mathf.MoveTowards(_currentAngle, _targetAngle, animationSpeed * openAngle * Time.deltaTime);
-        transform.localRotation = _closedRotation * Quaternion.Euler(0f, _currentAngle, 0f);
+        _currentAngle = Mathf.MoveTowards(
+            _currentAngle, _targetAngle,
+            animationSpeed * Mathf.Abs(openAngle) * Time.deltaTime);
+
+        // World-space hinge point
+        Vector3 hingeWorld = _closedWorldPos + _closedWorldRot * hingeLocalOffset;
+
+        // Rotation of the door around the hinge axis
+        Quaternion swing = Quaternion.AngleAxis(_currentAngle, _hingeAxis);
+
+        // Apply: new rotation = swing * closed rotation
+        transform.rotation = swing * _closedWorldRot;
+
+        // Apply: new position = swing applied to the offset from hinge to door center
+        transform.position = hingeWorld + swing * (_closedWorldPos - hingeWorld);
     }
 
-    // ── Collider ──────────────────────────────────────────────────────────
+    // ── Detection ─────────────────────────────────────────────────────────
+
+    bool IsPlayerNearby()
+    {
+        if (_player == null) return false;
+        return Vector3.Distance(transform.position, _player.position) <= interactDistance;
+    }
+
+    bool IsLookingAtDoor()
+    {
+        // Allow interaction if we have no valid camera (proximity alone is enough)
+        if (_cam == null) return true;
+
+        Ray ray = _cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        if (!Physics.Raycast(ray, out RaycastHit hit, interactDistance + 1f, ~0, QueryTriggerInteraction.Ignore))
+            return false;
+
+        Transform t = hit.collider.transform;
+        return t == transform || t.IsChildOf(transform) || transform.IsChildOf(t);
+    }
+
+    // ── Setup ─────────────────────────────────────────────────────────────
+
+    Transform FindPlayer()
+    {
+        GameObject tagged = GameObject.FindWithTag("Player");
+        if (tagged != null) return tagged.transform;
+
+        var mv = FindObjectOfType<PlayerMovement>();
+        return mv != null ? mv.transform : null;
+    }
+
+    Camera FindGameCamera()
+    {
+        var pc = FindObjectOfType<PlayerCamera>();
+        if (pc != null) return pc.GetComponent<Camera>();
+        return Camera.main;
+    }
 
     void EnsureCollider()
     {
-        // If this object or any child already has a collider, we're fine
         if (GetComponentInChildren<Collider>(true) != null) return;
 
-        // Auto-size a box collider from the renderers in this object
         Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
         if (renderers.Length == 0) return;
 
-        Bounds bounds = renderers[0].bounds;
-        for (int i = 1; i < renderers.Length; i++)
-            bounds.Encapsulate(renderers[i].bounds);
+        Bounds b = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++) b.Encapsulate(renderers[i].bounds);
 
         BoxCollider box = gameObject.AddComponent<BoxCollider>();
-        box.center = transform.InverseTransformPoint(bounds.center);
-        box.size = Vector3.Scale(bounds.size, new Vector3(
-            1f / transform.lossyScale.x,
-            1f / transform.lossyScale.y,
-            1f / transform.lossyScale.z));
+        box.center = transform.InverseTransformPoint(b.center);
+        box.size = new Vector3(
+            b.size.x / transform.lossyScale.x,
+            b.size.y / transform.lossyScale.y,
+            b.size.z / transform.lossyScale.z);
     }
 
-    // ── Prompt UI ─────────────────────────────────────────────────────────
+    // ── UI ────────────────────────────────────────────────────────────────
 
     void SetPromptVisible(bool visible)
     {
@@ -147,12 +167,12 @@ public class DoorInteraction : MonoBehaviour
     {
         if (promptLabel != null) return;
 
-        Canvas canvas = CreateOverlayCanvas();
+        Canvas canvas = BuildOverlayCanvas();
 
         GameObject go = new GameObject("DoorPrompt_" + gameObject.name);
         go.transform.SetParent(canvas.transform, false);
 
-        AddPromptBackground(go);
+        AddBackground(go);
 
         promptLabel = go.AddComponent<TextMeshProUGUI>();
         promptLabel.text = "Press <b>E</b> to open";
@@ -168,7 +188,7 @@ public class DoorInteraction : MonoBehaviour
         rt.sizeDelta = new Vector2(300f, 44f);
     }
 
-    void AddPromptBackground(GameObject parent)
+    void AddBackground(GameObject parent)
     {
         GameObject bg = new GameObject("Background");
         bg.transform.SetParent(parent.transform, false);
@@ -176,14 +196,14 @@ public class DoorInteraction : MonoBehaviour
         Image img = bg.AddComponent<Image>();
         img.color = new Color(0f, 0f, 0f, 0.5f);
 
-        RectTransform bgRT = img.rectTransform;
-        bgRT.anchorMin = Vector2.zero;
-        bgRT.anchorMax = Vector2.one;
-        bgRT.offsetMin = new Vector2(-14f, -8f);
-        bgRT.offsetMax = new Vector2(14f, 8f);
+        RectTransform rt = img.rectTransform;
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = new Vector2(-14f, -8f);
+        rt.offsetMax = new Vector2(14f, 8f);
     }
 
-    Canvas CreateOverlayCanvas()
+    Canvas BuildOverlayCanvas()
     {
         GameObject go = new GameObject("DoorInteractionCanvas");
         DontDestroyOnLoad(go);
@@ -199,5 +219,17 @@ public class DoorInteraction : MonoBehaviour
 
         go.AddComponent<GraphicRaycaster>();
         return canvas;
+    }
+
+    // ── Gizmo ─────────────────────────────────────────────────────────────
+
+    void OnDrawGizmosSelected()
+    {
+        // Draw a yellow sphere at the hinge point so you can verify it in Scene view
+        Vector3 hinge = transform.position + transform.rotation * hingeLocalOffset;
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawSphere(hinge, 0.06f);
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawRay(hinge, transform.up * 0.5f);
     }
 }

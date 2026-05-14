@@ -29,6 +29,7 @@ public class DoorInteraction : MonoBehaviour
     Quaternion _closedWorldRot;
     Vector3 _hingeAxis;
 
+    Collider[] _doorColliders;
     Transform _player;
     Camera _cam;
     bool _promptVisible;
@@ -46,6 +47,8 @@ public class DoorInteraction : MonoBehaviour
         _cam = FindGameCamera();
 
         EnsureCollider();
+        _doorColliders = GetComponentsInChildren<Collider>(true);
+
         EnsurePromptUI();
         SetPromptVisible(false);
     }
@@ -67,10 +70,12 @@ public class DoorInteraction : MonoBehaviour
 
     void ToggleDoor()
     {
-        if (!IsLookingAtDoor()) return;
-
         _isOpen = !_isOpen;
         _targetAngle = _isOpen ? openAngle : 0f;
+
+        // Re-enable colliders the moment the door starts closing
+        if (!_isOpen)
+            SetCollidersEnabled(true);
 
         if (promptLabel != null)
             promptLabel.text = _isOpen ? "Press <b>E</b> to close" : "Press <b>E</b> to open";
@@ -90,11 +95,20 @@ public class DoorInteraction : MonoBehaviour
         // Rotation of the door around the hinge axis
         Quaternion swing = Quaternion.AngleAxis(_currentAngle, _hingeAxis);
 
-        // Apply: new rotation = swing * closed rotation
         transform.rotation = swing * _closedWorldRot;
-
-        // Apply: new position = swing applied to the offset from hinge to door center
         transform.position = hingeWorld + swing * (_closedWorldPos - hingeWorld);
+
+        // Disable colliders only once the door is fully open so the player can walk through
+        bool fullyOpen = Mathf.Approximately(_currentAngle, openAngle);
+        if (fullyOpen && _isOpen)
+            SetCollidersEnabled(false);
+    }
+
+    void SetCollidersEnabled(bool enabled)
+    {
+        if (_doorColliders == null) return;
+        foreach (Collider col in _doorColliders)
+            col.enabled = enabled;
     }
 
     // ── Detection ─────────────────────────────────────────────────────────
@@ -103,19 +117,6 @@ public class DoorInteraction : MonoBehaviour
     {
         if (_player == null) return false;
         return Vector3.Distance(transform.position, _player.position) <= interactDistance;
-    }
-
-    bool IsLookingAtDoor()
-    {
-        // Allow interaction if we have no valid camera (proximity alone is enough)
-        if (_cam == null) return true;
-
-        Ray ray = _cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-        if (!Physics.Raycast(ray, out RaycastHit hit, interactDistance + 1f, ~0, QueryTriggerInteraction.Ignore))
-            return false;
-
-        Transform t = hit.collider.transform;
-        return t == transform || t.IsChildOf(transform) || transform.IsChildOf(t);
     }
 
     // ── Setup ─────────────────────────────────────────────────────────────

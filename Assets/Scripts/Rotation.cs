@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CubeInspectProcedural : MonoBehaviour
+public class Rotation : MonoBehaviour
 {
     [SerializeField] float tiltSpeed = 0.7f;
     [SerializeField] float tiltAmount = 8f;

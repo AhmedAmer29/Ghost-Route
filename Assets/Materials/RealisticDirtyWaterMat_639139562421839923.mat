@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: RealisticDirtyWaterMat_639139562421839923
+  m_Shader: {fileID: 4800000, guid: ecf5b6721ea7a704e9f3d088a5bf19cf, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _CausticsIntensity: 0.5
+    - _DepthDistance: 5
+    - _FresnelPower: 5
+    - _Glossiness: 0.98
+    - _Metallic: 0.2
+    - _NormalIntensity: 1.5
+    - _Refraction: 15
+    - _ScumThickness: 0.3
+    - _WaveScale: 1.5
+    m_Colors:
+    - _DeepColor: {r: 0.049999982, g: 0.059999965, b: 0.03, a: 1}
+    - _ScumColor: {r: 0.45, g: 0.39999998, b: 0.27999997, a: 1}
+    - _ShallowColor: {r: 0.27999997, g: 0.24999997, b: 0.14999998, a: 0.8}
+    - _WaveSpeed: {r: 0.05, g: 0.1, b: 0, a: 0}
+  m_BuildTextureStacks: []

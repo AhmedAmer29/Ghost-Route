@@ -4,5 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Behind Bank.unity
+    guid: 520b919127559544999dc1b027ae40a8
+  - enabled: 1
+    path: Assets/Scenes/Scene4.unity
+    guid: 42ac54e8e6639bf4ab4c7eddade51eca
   m_configObjects: {}

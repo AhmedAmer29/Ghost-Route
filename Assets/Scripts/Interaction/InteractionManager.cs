@@ -195,6 +195,43 @@ public class InteractionManager : MonoBehaviour
         _fadeCo = StartCoroutine(FadeSceneRoutine(sceneName, delay, fadeDuration));
     }
 
+    /// Fade to black, call onBlack (use for teleports), then fade back in.
+    public void FadeOutThenIn(System.Action onBlack, float fadeOut = 1f, float hold = 1f, float fadeIn = 1f)
+    {
+        if (_fadeCo != null) StopCoroutine(_fadeCo);
+        _fadeCo = StartCoroutine(FadeOutInRoutine(onBlack, fadeOut, hold, fadeIn));
+    }
+
+    IEnumerator FadeOutInRoutine(System.Action onBlack, float fadeOut, float hold, float fadeIn)
+    {
+        // Fade to black
+        _fadePanel.gameObject.SetActive(true);
+        float t = 0f;
+        while (t < fadeOut)
+        {
+            t += Time.deltaTime;
+            _fadePanel.color = new Color(0f, 0f, 0f, Mathf.SmoothStep(0f, 1f, t / fadeOut));
+            yield return null;
+        }
+        _fadePanel.color = Color.black;
+
+        // Do the action (teleport etc.) while screen is black
+        onBlack?.Invoke();
+
+        yield return new WaitForSeconds(hold);
+
+        // Fade back in
+        t = 0f;
+        while (t < fadeIn)
+        {
+            t += Time.deltaTime;
+            _fadePanel.color = new Color(0f, 0f, 0f, Mathf.SmoothStep(1f, 0f, t / fadeIn));
+            yield return null;
+        }
+        _fadePanel.color = new Color(0f, 0f, 0f, 0f);
+        _fadePanel.gameObject.SetActive(false);
+    }
+
     // ══════════════════════════════════════════════════════════════════════
     //  COROUTINES
     // ══════════════════════════════════════════════════════════════════════

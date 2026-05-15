@@ -48,15 +48,8 @@ public class DoorInteraction : MonoBehaviour
 
         EnsureCollider();
 
-        // Collect colliders on this object and all children
-        var cols = new System.Collections.Generic.List<Collider>(GetComponentsInChildren<Collider>(true));
-        // Also include any collider sitting directly on a parent (e.g. a doorframe parent)
-        if (transform.parent != null)
-        {
-            var parentCol = transform.parent.GetComponent<Collider>();
-            if (parentCol != null) cols.Add(parentCol);
-        }
-        _doorColliders = cols.ToArray();
+        // Collect only colliders on this door object and its children (not the parent/frame/wall)
+        _doorColliders = GetComponentsInChildren<Collider>(true);
 
         EnsurePromptUI();
         SetPromptVisible(false);
@@ -111,7 +104,7 @@ public class DoorInteraction : MonoBehaviour
     {
         if (_doorColliders == null) return;
         foreach (Collider col in _doorColliders)
-            col.isTrigger = !solid;
+            col.enabled = solid;
     }
 
     // ── Detection ─────────────────────────────────────────────────────────

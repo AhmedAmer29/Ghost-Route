@@ -49,6 +49,12 @@ public class PlayerMovement : MonoBehaviour
     {
         _controller  = GetComponent<CharacterController>();
         _velocity.y  = -2f;
+
+        // Clamp capsule to a size that fits through standard doorways.
+        // A radius > 0.35 makes the character too wide for a 0.8–1 m door opening.
+        if (_controller.radius > 0.35f)
+            _controller.radius = 0.35f;
+
         _standHeight = _controller.height;
         _standCenter = _controller.center;
         _wasGrounded = true;

@@ -197,8 +197,12 @@ public class SecurityCamera : MonoBehaviour
             if (!hit.transform.root.CompareTag("Player")) return;
 
         catchCount++;
+        // Disable CharacterController before teleporting to avoid physics snap issues
+        var cc = player.GetComponent<CharacterController>();
+        if (cc != null) cc.enabled = false;
         player.transform.position = spawnPoint.position;
-        respawnCooldown = 0f;
+        if (cc != null) cc.enabled = true;
+        respawnCooldown = 3f;   // 3-second grace period so player isn't caught instantly again
         ShowMessage();
     }
 

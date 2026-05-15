@@ -26,5 +26,11 @@ public class MasterPowerSystem : MonoBehaviour
     {
         Debug.Log("<color=green>[MasterPower] ALL SYSTEMS ONLINE! Lever Unlocked.</color>");
         onAllFixed?.Invoke();
+
+        // Direct push to BossHealth so the gate removes immediately when both
+        // boss + circuits are done — rather than relying on its polling coroutine
+        // (which can lose us if FindFirstObjectByType returns null during load).
+        foreach (var boss in Object.FindObjectsByType<BossHealth>(FindObjectsSortMode.None))
+            boss.NotifyCircuitsComplete();
     }
 }

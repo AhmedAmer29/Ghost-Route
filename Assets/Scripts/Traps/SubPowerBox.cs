@@ -10,11 +10,16 @@ public class SubPowerBox : MonoBehaviour
     public MasterPowerSystem masterSystem;
     public float interactionDistance = 3f;
 
+    [Header("Look-at gating")]
+    [Tooltip("Player must be facing the box for the prompt to appear. 1 = exact, 0 = ignore facing.")]
+    [Range(0f, 1f)] public float lookDotThreshold = 0.45f;
+
     private bool _isFixed;
     private bool _puzzleOpen;
     private WirePuzzleController _activeController;
     private GameObject _promptCanvas;
     private Text _promptText;
+    private Transform _player;
 
     private List<LeverInteraction.WireConfig> DefaultWires()
     {
@@ -31,21 +36,63 @@ public class SubPowerBox : MonoBehaviour
     void Start()
     {
         CreatePromptUI();
+        CachePlayer();
+    }
+
+    void CachePlayer()
+    {
+        GameObject p = GameObject.FindGameObjectWithTag("Player");
+        if (p != null) _player = p.transform;
     }
 
     void Update()
     {
-        if (_isFixed) return;
+        // Drive prompt visibility every frame, even after the box is fixed —
+        // otherwise the prompt freezes in whatever state it had when _isFixed flipped.
+        bool show = ShouldShowPrompt();
+        UpdatePrompt(show);
 
-        float dist = Vector3.Distance(transform.position, Camera.main.transform.position);
-        bool inRange = dist <= interactionDistance;
+        if (_isFixed || _puzzleOpen) return;
 
-        UpdatePrompt(inRange);
-
-        if (inRange && Input.GetKeyDown(KeyCode.E) && !_puzzleOpen)
-        {
+        if (show && Input.GetKeyDown(KeyCode.E))
             OpenPuzzle();
-        }
+    }
+
+    bool ShouldShowPrompt()
+    {
+        if (_isFixed || _puzzleOpen) return false;
+
+        if (_player == null) CachePlayer();
+        if (_player == null) return false;
+
+        // Use the player position for the distance check so the prompt doesn't pop on
+        // if the camera shake / head-bob momentarily wobbles into range.
+        float dist = Vector3.Distance(transform.position, _player.position);
+        if (dist > interactionDistance) return false;
+
+        // Require the player to actually be facing the box. This kills the "prompt
+        // stays on when I walk away and turn around" issue — distance alone isn't
+        // enough because the player can be close to a box while heading elsewhere.
+        Camera cam = Camera.main;
+        if (cam == null) return true; // distance-only fallback if no camera tagged
+
+        Vector3 toBox = transform.position - cam.transform.position;
+        if (toBox.sqrMagnitude < 0.0001f) return true;
+        float facing = Vector3.Dot(cam.transform.forward, toBox.normalized);
+        return facing >= lookDotThreshold;
+    }
+
+    void OnDisable()
+    {
+        // The puzzle UI/prompt are loose canvases; if we get disabled mid-puzzle
+        // (scene unload, component toggle), tear them down so nothing leaks.
+        if (_promptCanvas != null) _promptCanvas.SetActive(false);
+    }
+
+    void OnDestroy()
+    {
+        if (_promptCanvas != null) Destroy(_promptCanvas);
+        if (_activeController != null) Destroy(_activeController.gameObject);
     }
 
     void OpenPuzzle()
@@ -173,26 +220,20 @@ public class SubPowerBox : MonoBehaviour
         _promptText.rectTransform.anchoredPosition = new Vector2(30, 80);
         _promptText.rectTransform.sizeDelta        = new Vector2(400, 50);
         textObj.AddComponent<Shadow>().effectColor = Color.black;
-        DontDestroyOnLoad(_promptCanvas);
     }
 
     void UpdatePrompt(bool show)
     {
-        // Don't show the prompt if the puzzle is open, already fixed, or the completion flash is happening
-        if (_promptCanvas != null)
-        {
-            if (_isFixed || _puzzleOpen)
-            {
-                _promptCanvas.SetActive(false);
-                return;
-            }
+        if (_promptCanvas == null) return;
 
-            _promptCanvas.SetActive(show);
-            if (show && _promptText != null)
-            {
-                float pulse = 0.7f + Mathf.Sin(Time.time * 5f) * 0.3f;
-                _promptText.color = new Color(1, 1, 1, pulse);
-            }
+        bool wantActive = show && !_isFixed && !_puzzleOpen;
+        if (_promptCanvas.activeSelf != wantActive)
+            _promptCanvas.SetActive(wantActive);
+
+        if (wantActive && _promptText != null)
+        {
+            float pulse = 0.7f + Mathf.Sin(Time.time * 5f) * 0.3f;
+            _promptText.color = new Color(1, 1, 1, pulse);
         }
     }
 }

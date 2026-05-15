@@ -3377,6 +3377,7 @@ MonoBehaviour:
   isReal: 0
   masterSystem: {fileID: 626954411}
   interactionDistance: 2.5
+  lookDotThreshold: 0.45
 --- !u!1 &195482919
 GameObject:
   m_ObjectHideFlags: 0
@@ -4482,6 +4483,7 @@ MonoBehaviour:
   isReal: 1
   masterSystem: {fileID: 626954411}
   interactionDistance: 2.5
+  lookDotThreshold: 0.45
 --- !u!1 &255615180 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4039022864529267377, guid: 53b7abffd65270d4ebbbb4def0f350e5, type: 3}
@@ -8543,7 +8545,7 @@ MonoBehaviour:
   target: {fileID: 1415982011}
   mouseSensitivity: 2
   verticalClamp: 80
-  eyeHeight: 2
+  eyeHeight: 1.7
   forwardOffset: 0.2
   enableBob: 1
   bobFrequency: 5
@@ -9904,11 +9906,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbf699c2a8ca5ac4c99b94a73f6a324e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  triggerDistance: 3
+  triggerDistance: 8
   playerTag: Player
-  targetSceneName: scene3
+  targetSceneName: Scene3
   fadeDuration: 1.5
   holdBlackDuration: 0.4
+  verboseLogging: 1
 --- !u!1 &626954410
 GameObject:
   m_ObjectHideFlags: 0
@@ -11577,6 +11580,7 @@ MonoBehaviour:
   isReal: 1
   masterSystem: {fileID: 626954411}
   interactionDistance: 2.5
+  lookDotThreshold: 0.45
 --- !u!1001 &779983233
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15344,6 +15348,7 @@ MonoBehaviour:
   isReal: 0
   masterSystem: {fileID: 626954411}
   interactionDistance: 2.5
+  lookDotThreshold: 0.45
 --- !u!1 &946038184 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4039022864529267377, guid: 53b7abffd65270d4ebbbb4def0f350e5, type: 3}
@@ -16792,6 +16797,7 @@ GameObject:
   - component: {fileID: 1012062620}
   - component: {fileID: 1012062622}
   - component: {fileID: 1012062621}
+  - component: {fileID: 1012063000}
   m_Layer: 0
   m_Name: FalseLadder
   m_TagString: Untagged
@@ -16825,7 +16831,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1012062619}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8d125f25f06487343bcaa41b5c633fcf, type: 3}
   m_Name: 
@@ -16862,6 +16868,24 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2, y: 5, z: 2}
   m_Center: {x: 0, y: 2.5, z: 0}
+--- !u!114 &1012063000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1012062619}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbf699c2a8ca5ac4c99b94a73f6a324e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  triggerDistance: 3.5
+  playerTag: Player
+  targetSceneName: Scene3
+  fadeDuration: 1.5
+  holdBlackDuration: 0.4
+  verboseLogging: 1
 --- !u!1 &1017026679 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4039022864529267377, guid: 53b7abffd65270d4ebbbb4def0f350e5, type: 3}
@@ -17450,6 +17474,7 @@ MonoBehaviour:
   isReal: 1
   masterSystem: {fileID: 626954411}
   interactionDistance: 2.5
+  lookDotThreshold: 0.45
 --- !u!1 &1046474154
 GameObject:
   m_ObjectHideFlags: 0
@@ -17498,11 +17523,11 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 3, y: 3, z: 3}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &1046474157
 Transform:
@@ -17513,7 +17538,7 @@ Transform:
   m_GameObject: {fileID: 1046474154}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -26.35, y: 1.5, z: 174}
+  m_LocalPosition: {x: -3, y: 1.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -19707,6 +19732,7 @@ GameObject:
   - component: {fileID: 1224803421}
   - component: {fileID: 1224803420}
   - component: {fileID: 1224803422}
+  - component: {fileID: 1224803430}
   m_Layer: 0
   m_Name: SerwersP_013 (1)
   m_TagString: Untagged
@@ -19801,6 +19827,21 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -5432584436290144717, guid: 86f6e659cf323864eae49985a61892b1, type: 3}
+--- !u!114 &1224803430
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1224803418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a4f3b1c9d8e4f50a1b2c3d4e5f60718, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boss: {fileID: 0}
+  power: {fileID: 0}
+  ignoreCircuits: 0
 --- !u!1001 &1235663973
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20008,6 +20049,7 @@ MonoBehaviour:
   isReal: 1
   masterSystem: {fileID: 626954411}
   interactionDistance: 2.5
+  lookDotThreshold: 0.45
 --- !u!1 &1275634044
 GameObject:
   m_ObjectHideFlags: 0
@@ -20221,7 +20263,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 616f8a03e680ebe42ae2045c69fb5aaa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  riseSpeed: 0.0001
+  riseSpeed: 0.0005
   maxHeight: 20
   startHeight: 0
   drownDuration: 8
@@ -22101,6 +22143,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90eb490bbda798c4e9080f91966578e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  respawnDelay: 2.5
+  autoRespawnOnDeath: 1
   noiseLevel: 0
   noiseBuildRate: 2.5
   noiseDecayRate: 1.2
@@ -22262,7 +22306,7 @@ CharacterController:
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!114 &1415982020
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23133,6 +23177,7 @@ MonoBehaviour:
   isReal: 1
   masterSystem: {fileID: 626954411}
   interactionDistance: 2.5
+  lookDotThreshold: 0.45
 --- !u!1 &1458571171
 GameObject:
   m_ObjectHideFlags: 0
@@ -23425,6 +23470,7 @@ MonoBehaviour:
   isReal: 1
   masterSystem: {fileID: 626954411}
   interactionDistance: 2.5
+  lookDotThreshold: 0.45
 --- !u!1 &1472234248
 GameObject:
   m_ObjectHideFlags: 0
@@ -26190,11 +26236,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0db2360e41db07740afffd95338b420d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHits: 4
+  maxHits: 10
   hitsTaken: 0
   fallDuration: 1.5
   destroyDelay: 4
-  blockerObject: {fileID: 0}
+  blockerObject: {fileID: 1224803418}
   objectToRemoveOnKey: SerwersP_013 (1)
   removeOnDeathOnly: 0
   keyMessageDuration: 3
@@ -29779,6 +29825,7 @@ MonoBehaviour:
   isReal: 0
   masterSystem: {fileID: 626954411}
   interactionDistance: 2.5
+  lookDotThreshold: 0.45
 --- !u!1001 &1943105397
 PrefabInstance:
   m_ObjectHideFlags: 0

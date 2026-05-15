@@ -28630,13 +28630,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 510623001}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63549eaa64353284780129923ad6a302, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Script: {fileID: 11500000, guid: a3c2e4f608112233445566778899aadd, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
   target: {fileID: 327041935}
   mouseSensitivity: 2
   verticalClamp: 80
-  eyeHeight: 1.6
+  eyeHeight: 1
   forwardOffset: 0.2
   enableBob: 1
   bobFrequency: 6
@@ -125751,7 +125751,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2090372638}
   - component: {fileID: 2090372637}
-  - component: {fileID: 2090372636}
   m_Layer: 0
   m_Name: Sewers
   m_TagString: Untagged
@@ -125759,53 +125758,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2090372636
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2090372635}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5042eb4679333c8438e783475360ffa7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  manholeCover: {fileID: 2016094879}
-  liftHeight: 0.03
-  slideDistance: 1.1
-  slideDirection: {x: 0, y: 0, z: 1}
-  openDuration: 1.4
-  closeDuration: 1.2
-  easing:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  interactKey: 101
-  playerTag: Player
-  openPromptText: Open
-  closePromptText: Close
-  interactPrompt: {fileID: 0}
 --- !u!135 &2090372637
 SphereCollider:
   m_ObjectHideFlags: 0

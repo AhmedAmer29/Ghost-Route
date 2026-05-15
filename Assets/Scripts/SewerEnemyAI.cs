@@ -171,12 +171,7 @@ public class SewerEnemyAI : MonoBehaviour
             case Phase.StandingUp:
                 if (stateInfo.IsName("Standing Up") && stateInfo.normalizedTime >= 0.9f)
                 {
-                    _agent.enabled = true;
-                    _agent.updatePosition = true;
-                    _agent.updateRotation = true;
-                    _agent.speed = moveSpeed;
-                    _agent.Warp(transform.position);
-                    _agent.SetDestination(player.position);
+                    TryEnableAgent(); // No-op + logs once if there's no baked NavMesh
                     _anim.SetBool(ParamIsRunning, true);
                     _phase = Phase.Running;
                 }
@@ -187,9 +182,15 @@ public class SewerEnemyAI : MonoBehaviour
                 {
                     StartAttackLunge();
                 }
-                else if (_agent.isOnNavMesh)
+                else if (_agent.enabled && _agent.isOnNavMesh)
                 {
                     _agent.SetDestination(player.position);
+                }
+                else
+                {
+                    // No NavMesh in this scene — drive the boss straight at the player
+                    // so combat still works. Won't path around obstacles, but won't spam errors.
+                    MoveTowardPlayerDirect();
                 }
                 break;
 
@@ -242,13 +243,8 @@ public class SewerEnemyAI : MonoBehaviour
                 }
                 else
                 {
-                    _agent.enabled = true;
-                    _agent.isStopped = false;
-                    _agent.updatePosition = true;
-                    _agent.updateRotation = true;
-                    _agent.speed = moveSpeed;
-                    _agent.Warp(transform.position);
-                    if (_agent.isOnNavMesh) _agent.SetDestination(player.position);
+                    TryEnableAgent();
+                    if (_agent.enabled) _agent.isStopped = false;
                     _anim.SetBool(ParamIsRunning, true);
                     _phase = Phase.Running;
                 }
@@ -272,9 +268,13 @@ public class SewerEnemyAI : MonoBehaviour
         _hasLaunchedThisAttack = false;
         _hasHitPlayer = false; // Reset hit flag
 
-        // FULLY DISABLE AGENT so it doesn't fight our manual position updates
-        _agent.isStopped = true;
-        _agent.enabled = false; 
+        // FULLY DISABLE AGENT so it doesn't fight our manual position updates.
+        // Guard against the no-NavMesh case where the agent was never enabled —
+        // `isStopped` throws on an inactive agent.
+        if (_agent != null && _agent.enabled && _agent.isOnNavMesh)
+            _agent.isStopped = true;
+        if (_agent != null && _agent.enabled)
+            _agent.enabled = false;
 
         // Animation
         _anim.SetBool(ParamIsRunning, false);
@@ -291,22 +291,51 @@ public class SewerEnemyAI : MonoBehaviour
         // Play the specific recovery animation you found
         _anim.CrossFadeInFixedTime("Standing Interpolation", 0.1f);
 
-        // Re-enable agent but keep it stopped
-        _agent.enabled = true;
-        _agent.isStopped = true;
-        _agent.updatePosition = true;
+        // Re-enable agent but keep it stopped (skipped silently if no NavMesh)
+        if (TryEnableAgent())
+        {
+            _agent.isStopped = true;
+        }
+    }
 
-        // Find the floor and lift him slightly so he doesn't phase through
-        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 2.0f, NavMesh.AllAreas))
+    private bool _noNavMeshWarned;
+
+    bool TryEnableAgent()
+    {
+        if (_agent == null) return false;
+
+        // Don't enable the agent if there's no baked NavMesh — that's what fires
+        // the "Failed to create agent" / "SetDestination on inactive agent" errors.
+        if (!NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 2f, NavMesh.AllAreas))
         {
-            Vector3 groundPos = hit.position;
-            groundPos.y += 0.05f; // Tiny lift to prevent phasing
-            _agent.Warp(groundPos);
+            if (!_noNavMeshWarned)
+            {
+                Debug.LogWarning("[SewerEnemyAI] No baked NavMesh nearby — boss will use direct movement. Bake one via Window > AI > Navigation to enable proper pathfinding.");
+                _noNavMeshWarned = true;
+            }
+            if (_agent.enabled) _agent.enabled = false;
+            return false;
         }
-        else
-        {
-            _agent.Warp(transform.position);
-        }
+
+        _agent.enabled = true;
+        _agent.updatePosition = true;
+        _agent.updateRotation = true;
+        _agent.speed = moveSpeed;
+        _agent.Warp(hit.position);
+        return true;
+    }
+
+    void MoveTowardPlayerDirect()
+    {
+        Vector3 to = player.position - transform.position;
+        to.y = 0f;
+        if (to.sqrMagnitude < 0.0001f) return;
+
+        Vector3 dir = to.normalized;
+        transform.position += dir * moveSpeed * Time.deltaTime;
+
+        Quaternion targetRot = Quaternion.LookRotation(dir);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, turnSpeed * Time.deltaTime);
     }
 
     void ApplyKnockbackToPlayer()

@@ -123,6 +123,16 @@ public class BossHealth : MonoBehaviour
         TryRemoveBlocker();
     }
 
+    // Called by MasterPowerSystem when the last circuit is overloaded.
+    // If the boss is already dead, the gate opens right now instead of waiting
+    // for the polling coroutine to notice on its next frame.
+    public void NotifyCircuitsComplete()
+    {
+        Debug.Log($"[BossHealth] NotifyCircuitsComplete (dead={_dead}, removed={_blockerRemoved})");
+        if (_dead && !_blockerRemoved)
+            TryRemoveBlocker();
+    }
+
     void TryRemoveBlocker()
     {
         if (_blockerRemoved)
@@ -135,8 +145,9 @@ public class BossHealth : MonoBehaviour
 
         if (blocker != null)
         {
-            Debug.Log($"<color=lime>[BossHealth] Disabling blocker '{blocker.name}' (was active={blocker.activeSelf})</color>");
+            Debug.Log($"<color=lime>[BossHealth] Removing blocker '{blocker.name}' (was active={blocker.activeSelf})</color>");
             blocker.SetActive(false);
+            Destroy(blocker);
             _blockerRemoved = true;
         }
         else

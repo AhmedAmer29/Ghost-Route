@@ -78,14 +78,16 @@ public class PlayerMovement : MonoBehaviour
 
     void GroundCheck()
     {
-        // Sphere starts at the bottom-sphere center of the capsule. Cast distance is the
-        // small tolerance only — adding _controller.radius made the effective detection
-        // range 0.75m, which kept the player "grounded" through the entire jump arc and
-        // allowed mid-air re-jumps.
-        Vector3 origin = transform.position + Vector3.up * _controller.radius;
+        // Center of the capsule's bottom hemisphere — derived from the CC so this works
+        // regardless of where the designer put the controller's center. Casting from the
+        // capsule center (which is what the previous version did) misses the ground
+        // entirely when center.y is 0 instead of height/2.
+        Vector3 bottomSphere = transform.position
+                             + _controller.center
+                             + Vector3.down * (_controller.height * 0.5f - _controller.radius);
         isGrounded = Physics.SphereCast(
-            origin, _controller.radius - 0.01f, Vector3.down, out _,
-            groundCheckDistance, groundMask,
+            bottomSphere, _controller.radius - 0.01f, Vector3.down, out _,
+            groundCheckDistance + _controller.skinWidth, groundMask,
             QueryTriggerInteraction.Ignore
         );
 

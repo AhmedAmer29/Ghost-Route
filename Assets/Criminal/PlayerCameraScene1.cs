@@ -1,21 +1,21 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Camera))]
-public class PlayerCamera : MonoBehaviour
+public class PlayerCameraScene1 : MonoBehaviour
 {
     public Transform target;
     public float mouseSensitivity = 2f;
     public float verticalClamp = 80f;
 
     [Header("Eye Position")]
-    public float eyeHeight = 1.6f;
+    public float eyeHeight = 1.0f;
     public float forwardOffset = 0.2f;
 
     [Header("Head Bob")]
     public bool enableBob = true;
-    public float bobFrequency = 5f;
-    public float bobAmplitude = 0.028f;
-    public float bobRunMultiplier = 1.8f;
+    public float bobFrequency = 6f;
+    public float bobAmplitude = 0.035f;
+    public float bobRunMultiplier = 1.6f;
     public float bobCrouchMultiplier = 0.5f;
 
     [Header("Breathing")]
@@ -28,11 +28,11 @@ public class PlayerCamera : MonoBehaviour
 
     [Header("Wall Collision")]
     public LayerMask wallMask = ~0;
-    public float wallPadding = 0.12f;
+    public float wallPadding = 0.2f;
 
     [Header("Body Rendering")]
     public string bodyLayerName = "PlayerBody";
-    public float bodyCameraNearClip = 0.4f;
+    public float bodyCameraNearClip = 0.04f;
     public float downwardClamp = 60f;
 
     private float _xRotation;
@@ -57,7 +57,7 @@ public class PlayerCamera : MonoBehaviour
 
         if (target == null)
         {
-            Debug.LogError("[PlayerCamera] No player found! Add a PlayerMovement component to player.");
+            Debug.LogError("[PlayerCameraScene1] No player found! Add a PlayerMovement component to player.");
             enabled = false;
             return;
         }
@@ -70,29 +70,21 @@ public class PlayerCamera : MonoBehaviour
         _state    = target.GetComponent<PlayerState>();
         _mainCam  = GetComponent<Camera>();
 
-        // Eye height is a local-space Y offset from the player transform pivot.
-        // Inspector value wins so the camera can be parked exactly on the head;
-        // if it's left at 0 we auto-derive from the CharacterController capsule.
-        float scale = target.lossyScale.y > 0.001f ? target.lossyScale.y : 1f;
-        var cc = target.GetComponent<CharacterController>();
-        if (eyeHeight > 0.001f)
-        {
-            _eyeBase = eyeHeight / scale;
-        }
-        else if (cc != null)
-        {
-            float headLocal = cc.center.y + cc.height * 0.5f; // top of capsule
-            _eyeBase = headLocal - 0.1f; // sit just below the crown
-        }
-        else
-        {
-            _eyeBase = 1.7f / scale;
-        }
+        _eyeBase = ComputeEyeBase();
         _currentEyeH = _eyeBase;
 
         transform.SetParent(target);
         transform.localPosition = new Vector3(0f, _eyeBase, forwardOffset);
         transform.localRotation = Quaternion.identity;
+    }
+
+    float ComputeEyeBase()
+    {
+        float scale = target.lossyScale.y > 0.001f ? target.lossyScale.y : 1f;
+        if (eyeHeight > 0.001f) return eyeHeight / scale;
+        var cc = target.GetComponent<CharacterController>();
+        if (cc != null) return cc.center.y + cc.height * 0.5f - 0.1f;
+        return 1.7f / scale;
 
         SetupBodyCamera();
         DisableBodyFrustumCulling();
@@ -105,7 +97,7 @@ public class PlayerCamera : MonoBehaviour
         int bodyLayer = LayerMask.NameToLayer(bodyLayerName);
         if (bodyLayer == -1)
         {
-            Debug.LogWarning("[PlayerCamera] 'PlayerBody' layer not found — create it in Project Settings.");
+            Debug.LogWarning("[PlayerCameraScene1] 'PlayerBody' layer not found — create it in Project Settings.");
             return;
         }
 
@@ -148,6 +140,7 @@ public class PlayerCamera : MonoBehaviour
         float speed = _movement != null ? _movement.currentSpeed : 0f;
         float exertion = _movement != null ? _movement.exertion : 0f;
 
+        _eyeBase = ComputeEyeBase();
         float targetEyeH = crouching ? _eyeBase * 0.55f : _eyeBase;
         _currentEyeH = Mathf.Lerp(_currentEyeH, targetEyeH, Time.deltaTime * 12f);
 
@@ -185,12 +178,11 @@ public class PlayerCamera : MonoBehaviour
 
         float scale = target.lossyScale.y;
 
-        // _currentEyeH is in LOCAL space — multiply by scale to get world offset for raycasts
         Vector3 worldEye = target.position
                          + Vector3.up * (_currentEyeH * scale + _bobOffsetY * scale + breathY * scale)
                          + target.right * (_bobOffsetX * scale);
 
-        float fwd = forwardOffset * scale; // world-space forward distance for wall raycasts
+        float fwd = forwardOffset * scale;
         if (Physics.Raycast(worldEye, target.forward, out RaycastHit fwdHit, fwd + wallPadding, wallMask, QueryTriggerInteraction.Ignore))
             fwd = Mathf.Max(0f, fwdHit.distance - wallPadding);
 
@@ -198,7 +190,6 @@ public class PlayerCamera : MonoBehaviour
         if (Physics.Raycast(worldEye, lookDir, out RaycastHit lookHit, fwd + wallPadding, wallMask, QueryTriggerInteraction.Ignore))
             fwd = Mathf.Max(0f, Mathf.Min(fwd, lookHit.distance - wallPadding));
 
-        // fwd is in world space (used for raycasts above); convert back to local for localPosition
         float fwdLocal = scale > 0.001f ? fwd / scale : fwd;
         transform.localPosition = new Vector3(_bobOffsetX, _currentEyeH + _bobOffsetY + breathY, fwdLocal);
         transform.localRotation = Quaternion.Euler(_xRotation + breathPitch, 0f, 0f);

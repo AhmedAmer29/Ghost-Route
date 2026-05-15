@@ -1,7 +1,16 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using System.Collections;
 
 public class PlayerState : MonoBehaviour
 {
+    [Header("Respawn")]
+    [Tooltip("Seconds to wait after death before respawning by reloading the scene.")]
+    public float respawnDelay = 2.5f;
+    [Tooltip("If false, dying just freezes the player and waits for code to call Respawn() manually.")]
+    public bool autoRespawnOnDeath = true;
+
     [Header("Noise")]
     [Range(0f, 1f)] public float noiseLevel;
     public float noiseBuildRate = 2.5f;
@@ -175,7 +184,7 @@ public class PlayerState : MonoBehaviour
         if (isDead) return;
         isDead = true;
         deathCooldown = 3f;
-        Debug.Log($"[PlayerState] DEATH: {cause}");
+        Debug.Log($"<color=red>[PlayerState] DEATH: {cause}</color>");
 
         var kr = GetComponent<PlayerKnockbackReceiver>();
         if (kr != null && !kr.IsStunned)
@@ -187,6 +196,68 @@ public class PlayerState : MonoBehaviour
             var en = _controls.GetType().GetProperty("enabled");
             if (en != null) en.SetValue(_controls, false, null);
         }
+
+        if (autoRespawnOnDeath)
+            StartCoroutine(DeathToRespawn(cause));
+    }
+
+    IEnumerator DeathToRespawn(string cause)
+    {
+        // Build a black overlay + "YOU DIED — Drowned" message so the player
+        // sees feedback rather than just freezing in place.
+        GameObject canvasGO = new GameObject("DeathCanvas");
+        Canvas canvas = canvasGO.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 6000;
+        canvasGO.AddComponent<CanvasScaler>();
+
+        GameObject imgGO = new GameObject("Black");
+        imgGO.transform.SetParent(canvasGO.transform, false);
+        Image img = imgGO.AddComponent<Image>();
+        img.color = new Color(0f, 0f, 0f, 0f);
+        RectTransform rt = img.rectTransform;
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+
+        GameObject txtGO = new GameObject("DeathText");
+        txtGO.transform.SetParent(canvasGO.transform, false);
+        Text label = txtGO.AddComponent<Text>();
+        label.text = $"YOU DIED\n<size=28>{cause}</size>";
+        label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        label.fontSize = 56;
+        label.fontStyle = FontStyle.Bold;
+        label.alignment = TextAnchor.MiddleCenter;
+        label.color = new Color(1f, 0.2f, 0.2f, 0f);
+        label.supportRichText = true;
+        RectTransform lrt = label.rectTransform;
+        lrt.anchorMin = new Vector2(0, 0.35f);
+        lrt.anchorMax = new Vector2(1, 0.65f);
+        lrt.offsetMin = Vector2.zero;
+        lrt.offsetMax = Vector2.zero;
+
+        // Fade in over the first half, hold, then reload.
+        float fadeIn = Mathf.Min(1f, respawnDelay * 0.5f);
+        float t = 0f;
+        while (t < fadeIn)
+        {
+            t += Time.unscaledDeltaTime;
+            float a = Mathf.Clamp01(t / fadeIn);
+            img.color = new Color(0f, 0f, 0f, a * 0.92f);
+            label.color = new Color(1f, 0.2f, 0.2f, a);
+            yield return null;
+        }
+
+        yield return new WaitForSecondsRealtime(Mathf.Max(0f, respawnDelay - fadeIn));
+
+        string scene = SceneManager.GetActiveScene().name;
+        Debug.Log($"<color=yellow>[PlayerState] Respawning by reloading scene '{scene}'</color>");
+        // Make sure controls and cursor are sane before the next scene takes over.
+        Time.timeScale = 1f;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        SceneManager.LoadScene(scene);
     }
 
     public void Respawn()

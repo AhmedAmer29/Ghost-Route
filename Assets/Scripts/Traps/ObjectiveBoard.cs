@@ -1,127 +1,134 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Attach to the Meshy_AI board object.
-/// Tracks two objectives:
-///   1. Overload 3 real electrical boxes  (reads from MasterPowerSystem)
-///   2. Pick up the KEY01 object          (detects when it disappears from the scene)
-/// When BOTH are done, the lever is unlocked.
-/// </summary>
 public class ObjectiveBoard : MonoBehaviour
 {
-    [Header("References")]
-    public Text              circuitText;
-    public Text              keyText;
-    public MasterPowerSystem masterSystem;
-    public LeverInteraction  lever;          // Drag Lever Switch here (or auto-found)
+    [Header("Proximity")]
+    public float showDistance = 5f;
+    public string playerTag = "Player";
 
-    // KEY01 is detected by watching if the GameObject disappears from the scene
-    private GameObject _keyObj;
-    private bool       _hasKey      = false;
-    private bool       _circuitsDone = false;
-    private bool       _leverUnlocked = false;
+    [Header("References (auto-found if empty)")]
+    public MasterPowerSystem masterSystem;
+    public LeverInteraction  lever;
+
+    // Legacy fields kept for SewerToolsMenu Auto-Setup compatibility.
+    // The proximity HUD builds its own UI and ignores these.
+    [HideInInspector] public Text circuitText;
+    [HideInInspector] public Text keyText;
+
+    private Transform _player;
+    private bool      _playerNear;
+
+    private GameObject _panelGO;
+    private Text       _bossLine;
+    private Text       _circuitLine;
+    private Text       _doneLine;
 
     void Start()
     {
-        // Auto-find references if not set in inspector
-        if (masterSystem == null)
-            masterSystem = FindObjectOfType<MasterPowerSystem>();
+        if (masterSystem == null) masterSystem = Object.FindFirstObjectByType<MasterPowerSystem>();
+        if (lever        == null) lever        = Object.FindFirstObjectByType<LeverInteraction>();
 
-        if (lever == null)
-            lever = FindObjectOfType<LeverInteraction>();
+        GameObject p = GameObject.FindWithTag(playerTag);
+        if (p == null) p = GameObject.Find("Player");
+        if (p != null) _player = p.transform;
 
-        // Find KEY01 — we watch for it to disappear (picked up / destroyed)
-        _keyObj = GameObject.Find("KEY01");
-        if (_keyObj == null)
-            Debug.LogWarning("[ObjectiveBoard] Could not find 'KEY01' in scene. Key objective will not track.");
-
-        RefreshUI();
+        BuildHUD();
     }
 
     void Update()
     {
-        CheckCircuits();
-        CheckKey();
-        TryUnlockLever();
-        RefreshUI();
-    }
+        if (_player == null) return;
 
-    // ── Circuits ──────────────────────────────────────────────────────────────
-    void CheckCircuits()
-    {
-        if (_circuitsDone) return;
-        if (masterSystem == null) return;
-        if (masterSystem.fixedCount >= masterSystem.targetCount)
-            _circuitsDone = true;
-    }
+        bool near = Vector3.Distance(transform.position, _player.position) <= showDistance;
 
-    // ── Key ───────────────────────────────────────────────────────────────────
-    void CheckKey()
-    {
-        if (_hasKey) return;
-
-        // KEY01 was found at start — mark collected when it disappears
-        if (_keyObj != null && !_keyObj.activeInHierarchy)
+        if (near != _playerNear)
         {
-            _hasKey = true;
-            return;
+            _playerNear = near;
+            if (_panelGO != null) _panelGO.SetActive(near);
         }
 
-        // KEY01 was already gone at start (already picked up before board loaded)
-        if (_keyObj == null)
-            _hasKey = true;
+        if (_playerNear) RefreshUI();
     }
 
-    // Public call — your key pickup script can call this directly
-    public void SetKeyFound() => _hasKey = true;
-
-    // ── Lever Gate ────────────────────────────────────────────────────────────
-    void TryUnlockLever()
-    {
-        if (_leverUnlocked) return;
-        if (!_circuitsDone || !_hasKey) return;
-
-        _leverUnlocked = true;
-        if (lever != null)
-        {
-            lever.Unlock();
-            Debug.Log("<color=green>[ObjectiveBoard] All objectives complete! Lever unlocked.</color>");
-        }
-    }
-
-    // ── UI ────────────────────────────────────────────────────────────────────
     void RefreshUI()
     {
-        if (circuitText != null)
-        {
-            int count = masterSystem != null ? masterSystem.fixedCount  : 0;
-            int total = masterSystem != null ? masterSystem.targetCount : 3;
+        bool bossDone = BossHealth.HasKey;
+        int count = masterSystem != null ? masterSystem.fixedCount  : 0;
+        int total = masterSystem != null ? masterSystem.targetCount : 3;
+        bool circuitsDone = total > 0 && count >= total;
 
-            if (_circuitsDone)
-            {
-                circuitText.text  = "✔ ELECTRICAL COMPONENTS: DONE";
-                circuitText.color = Color.green;
-            }
-            else
-            {
-                circuitText.text  = $"✖ ELECTRICAL COMPONENTS: {count}/{total}";
-                circuitText.color = Color.white;
-            }
-        }
+        _bossLine.text  = bossDone ? "[X]  Boss defeated — key obtained"
+                                   : "[ ]  Defeat the boss to get the key";
+        _bossLine.color = bossDone ? new Color(0.45f, 1f, 0.45f) : Color.white;
 
-        if (keyText != null)
-        {
-            if (_hasKey)
-            {
-                keyText.text  = "✔ KEY: ACQUIRED";
-                keyText.color = Color.green;
-            }
-            else
-            {
-                keyText.text  = "✖ KEY: NEEDED";
-                keyText.color = new Color(1f, 0.3f, 0.3f); // red
-            }
-        }
+        _circuitLine.text  = circuitsDone ? "[X]  Electrical circuits overloaded"
+                                          : $"[ ]  Overload electrical circuits  ({count}/{total})";
+        _circuitLine.color = circuitsDone ? new Color(0.45f, 1f, 0.45f) : Color.white;
+
+        _doneLine.gameObject.SetActive(bossDone && circuitsDone);
+    }
+
+    // ── HUD ──────────────────────────────────────────────────────────────────
+    void BuildHUD()
+    {
+        GameObject canvasGO = new GameObject("ObjectiveBoardCanvas");
+        Canvas canvas = canvasGO.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 950;
+        CanvasScaler scaler = canvasGO.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920, 1080);
+
+        _panelGO = new GameObject("ObjectivePanel");
+        _panelGO.transform.SetParent(canvasGO.transform, false);
+        Image bg = _panelGO.AddComponent<Image>();
+        bg.color = new Color(0f, 0f, 0f, 0.78f);
+
+        RectTransform panelRT = _panelGO.GetComponent<RectTransform>();
+        panelRT.anchorMin = panelRT.anchorMax = new Vector2(0.5f, 0.78f);
+        panelRT.pivot     = new Vector2(0.5f, 0.5f);
+        panelRT.sizeDelta = new Vector2(780, 260);
+
+        MakeLabel(_panelGO.transform, "── OBJECTIVES ──",
+            new Vector2(0, 90), 32, new Color(1f, 0.85f, 0.2f), FontStyle.Bold);
+
+        _bossLine = MakeLabel(_panelGO.transform,
+            "[ ]  Defeat the boss to get the key",
+            new Vector2(0, 30), 26, Color.white, FontStyle.Normal);
+
+        _circuitLine = MakeLabel(_panelGO.transform,
+            "[ ]  Overload electrical circuits",
+            new Vector2(0, -10), 26, Color.white, FontStyle.Normal);
+
+        _doneLine = MakeLabel(_panelGO.transform,
+            "All objectives complete — the way out is open",
+            new Vector2(0, -70), 22, new Color(0.45f, 1f, 0.45f), FontStyle.Italic);
+        _doneLine.gameObject.SetActive(false);
+
+        _panelGO.SetActive(false);
+    }
+
+    Text MakeLabel(Transform parent, string text, Vector2 pos, int size, Color color, FontStyle style)
+    {
+        GameObject go = new GameObject("Label");
+        go.transform.SetParent(parent, false);
+        Text t = go.AddComponent<Text>();
+        t.font      = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        t.fontSize  = size;
+        t.color     = color;
+        t.text      = text;
+        t.alignment = TextAnchor.MiddleCenter;
+        t.fontStyle = style;
+
+        Shadow s = go.AddComponent<Shadow>();
+        s.effectColor    = Color.black;
+        s.effectDistance = new Vector2(1, -1);
+
+        RectTransform rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = pos;
+        rt.sizeDelta        = new Vector2(740, 50);
+        return t;
     }
 }

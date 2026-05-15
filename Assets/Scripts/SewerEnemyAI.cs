@@ -25,6 +25,7 @@ public class SewerEnemyAI : MonoBehaviour
     [Range(0f, 10f)] public float attackVerticalLift = 3.0f; // Upward pop on hit
     [Range(0f, 2f)] public float attackStunDuration = 0.5f; // How long the player loses control
     public float knockbackDistance = 1.8f; // Distance to trigger the push
+    [Range(0f, 100f)] public float attackDamage = 25f; // HP removed from RatDamageEffect on impact
 
     [Header("Ground Snap")]
     public float groundOffset = 0.05f;
@@ -229,10 +230,28 @@ public class SewerEnemyAI : MonoBehaviour
                 if (NavMesh.SamplePosition(transform.position, out NavMeshHit fHit, 3.0f, NavMesh.AllAreas))
                 {
                     Vector3 p = transform.position;
-                    p.y = fHit.position.y + groundOffset; 
+                    p.y = fHit.position.y + groundOffset;
                     transform.position = p;
                 }
                 FacePlayer();
+
+                // Loop back into combat
+                if (dist <= attackDistance)
+                {
+                    StartAttackLunge();
+                }
+                else
+                {
+                    _agent.enabled = true;
+                    _agent.isStopped = false;
+                    _agent.updatePosition = true;
+                    _agent.updateRotation = true;
+                    _agent.speed = moveSpeed;
+                    _agent.Warp(transform.position);
+                    if (_agent.isOnNavMesh) _agent.SetDestination(player.position);
+                    _anim.SetBool(ParamIsRunning, true);
+                    _phase = Phase.Running;
+                }
                 break;
         }
     }
@@ -300,6 +319,10 @@ public class SewerEnemyAI : MonoBehaviour
         
         if (pushDir == Vector3.zero) 
             pushDir = transform.forward; // Fallback if exactly overlapping
+
+        // Red-screen damage
+        if (RatDamageEffect.Instance != null)
+            RatDamageEffect.Instance.TakeDamage(attackDamage);
 
         // Pass knockback down to player receiver
         if (player.TryGetComponent<PlayerKnockbackReceiver>(out PlayerKnockbackReceiver receiver))

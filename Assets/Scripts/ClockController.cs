@@ -3,17 +3,15 @@ using UnityEngine;
 
 public class ClockController : MonoBehaviour
 {
-    [Header("Clock Hand Rotators")]
-    [Tooltip("Drag the SecondsRotator empty GameObject here — NOT the mesh itself")]
-    public Transform secondsRotator;
-    [Tooltip("Drag the HoursRotator empty GameObject here — NOT the mesh itself")]
-    public Transform hoursRotator;
+    [Header("Clock Hands  (drag the actual Seconds and Hours objects)")]
+    public Transform secondsHand;
+    public Transform hoursHand;
 
-    [Header("Calibration")]
-    [Tooltip("Z angle of the Hours rotator when clock shows 12:00. Adjust until 12 looks correct.")]
-    public float hourAngleAt12   = 90f;
-    [Tooltip("Z angle of the Seconds rotator when clock shows :00. Adjust if needed.")]
-    public float secondAngleAt00 = 180f;
+    [Header("Calibration  (adjust until 12 o'clock looks correct)")]
+    [Tooltip("Z angle that visually places the Hours hand at 12:00")]
+    public float hourAngleAt12   = 0f;
+    [Tooltip("Z angle that visually places the Seconds hand at :00")]
+    public float secondAngleAt00 = -30f;
 
     [Header("Tick Audio")]
     public AudioSource tickAudioSource;
@@ -24,27 +22,43 @@ public class ClockController : MonoBehaviour
     public AudioClip   alarmSound;
     public AudioClip   alarmStopSound;
 
-    // Time tracked as seconds offset from midnight. 11:55 PM = -300.
-    private int secondsFromMidnight = -(5 * 60);
+    private int secondsFromMidnight = -(5 * 60); // 11:55 PM
+
+    // Original rotations stored as Quaternions — never touched again after Start.
+    // Position is never changed — only localRotation.
+    private Quaternion secondsOrigRot;
+    private Quaternion hoursOrigRot;
 
     private Coroutine tickCoroutine;
 
+    // During the sleep phase each real-time tick advances the clock by 1 minute
+    // so the hands visibly sweep 11:55 → 12:00 over 5 ticks.
+    // SnapToMidnight() flips this to false so after midnight the clock runs
+    // at normal speed (1 second per tick).
+    private bool sleepMode = true;
+
     void Start()
     {
-        if (secondsRotator == null) { Debug.LogError("ClockController: Seconds Rotator not assigned!"); return; }
-        if (hoursRotator   == null) { Debug.LogError("ClockController: Hours Rotator not assigned!");   return; }
+        if (secondsHand == null) { Debug.LogError("ClockController: Seconds Hand not assigned!"); return; }
+        if (hoursHand   == null) { Debug.LogError("ClockController: Hours Hand not assigned!");   return; }
+
+        // Capture the model's original rotation once — position is untouched forever
+        secondsOrigRot = secondsHand.localRotation;
+        hoursOrigRot   = hoursHand.localRotation;
 
         UpdateClockVisuals();
     }
 
     public void StartTicking()
     {
+        sleepMode = true;
         if (tickCoroutine != null) StopCoroutine(tickCoroutine);
         tickCoroutine = StartCoroutine(TickLoop());
     }
 
     public void SnapToMidnight()
     {
+        sleepMode = false;          // switch to real-time speed from here on
         secondsFromMidnight = 0;
         UpdateClockVisuals();
     }
@@ -77,7 +91,12 @@ public class ClockController : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(1f);
-            secondsFromMidnight++;
+
+            // Sleep mode: each real second = 1 clock minute, so 5 ticks sweeps
+            // the hands from 11:55 to 12:00 visibly.
+            // Normal mode: each real second = 1 clock second (after midnight).
+            secondsFromMidnight += sleepMode ? 60 : 1;
+
             UpdateClockVisuals();
             PlayOneTick();
         }
@@ -91,14 +110,16 @@ public class ClockController : MonoBehaviour
 
     void UpdateClockVisuals()
     {
-        if (secondsRotator == null || hoursRotator == null) return;
+        if (secondsHand == null || hoursHand == null) return;
 
         float secPos    = ((secondsFromMidnight % 60) + 60) % 60;
         float secAngle  = secondAngleAt00 + (secPos * 6f);
         float hourAngle = hourAngleAt12   + (secondsFromMidnight * (0.5f / 60f));
 
-        // Rotators are pure Z — X and Y are always 0, no Euler distortion possible
-        secondsRotator.localEulerAngles = new Vector3(0f, 0f, secAngle);
-        hoursRotator.localEulerAngles   = new Vector3(0f, 0f, hourAngle);
+        // Rotate around the parent's Z axis by the calculated angle,
+        // applied on top of the model's original rotation.
+        // Position is never touched — only localRotation changes.
+        secondsHand.localRotation = Quaternion.AngleAxis(secAngle, Vector3.forward) * secondsOrigRot;
+        hoursHand.localRotation   = Quaternion.AngleAxis(hourAngle, Vector3.forward) * hoursOrigRot;
     }
 }

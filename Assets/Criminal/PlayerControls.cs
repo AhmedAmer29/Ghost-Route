@@ -67,10 +67,14 @@ public class PlayerMovement : MonoBehaviour
 
     void GroundCheck()
     {
+        // Sphere starts at the bottom-sphere center of the capsule. Cast distance is the
+        // small tolerance only — adding _controller.radius made the effective detection
+        // range 0.75m, which kept the player "grounded" through the entire jump arc and
+        // allowed mid-air re-jumps.
         Vector3 origin = transform.position + Vector3.up * _controller.radius;
         isGrounded = Physics.SphereCast(
             origin, _controller.radius - 0.01f, Vector3.down, out _,
-            _controller.radius + groundCheckDistance, groundMask,
+            groundCheckDistance, groundMask,
             QueryTriggerInteraction.Ignore
         );
 
@@ -138,8 +142,11 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleJump()
     {
-        if (isGrounded && !isCrouching && Input.GetButtonDown("Jump"))
+        if (isGrounded && _velocity.y <= 0f && !isCrouching && Input.GetButtonDown("Jump"))
+        {
             _velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            isGrounded = false;
+        }
     }
 
     void ApplyGravity()

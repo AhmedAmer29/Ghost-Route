@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
 using System.Collections;
 
@@ -132,6 +133,14 @@ public class PCInteraction : MonoBehaviour
 
     void BuildUI()
     {
+        // Button clicks require an EventSystem — create one if missing
+        if (FindObjectOfType<EventSystem>() == null)
+        {
+            var es = new GameObject("EventSystem");
+            es.AddComponent<EventSystem>();
+            es.AddComponent<StandaloneInputModule>();
+        }
+
         var cObj = new GameObject("PCInteractionCanvas");
         var cv   = cObj.AddComponent<Canvas>();
         cv.renderMode   = RenderMode.ScreenSpaceOverlay;

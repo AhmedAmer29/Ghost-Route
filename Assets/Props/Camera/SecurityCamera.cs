@@ -184,7 +184,7 @@ public class SecurityCamera : MonoBehaviour
 
         Vector3 origin = headBone.position;
         Vector3 coneForward = headBone.TransformDirection(Vector3.forward);
-        Vector3 toPlayer = player.transform.position - origin;
+        Vector3 toPlayer = (player.transform.position + Vector3.up * 1f) - origin;
 
         float dist = toPlayer.magnitude;
         float angle = Vector3.Angle(coneForward, toPlayer);

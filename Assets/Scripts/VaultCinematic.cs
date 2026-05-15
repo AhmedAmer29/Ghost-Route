@@ -12,23 +12,25 @@ public class VaultCinematic : MonoBehaviour
     static readonly string LINE1 = "I think I finally understand how the thief managed to get into the vault.";
     static readonly string LINE2 = "It all makes sense now… every step they took,\nand how they stayed ahead of the security systems.";
 
-    Canvas     _canvas;
-    CanvasGroup _root;
-    Image      _black;
-    Image      _barTop, _barBottom;
+    Canvas          _canvas;
+    CanvasGroup     _root;
+    Image           _black;
+    Image           _barTop, _barBottom;
     TextMeshProUGUI _line1Text, _line2Text, _cursor;
+    AudioClip       _voiceClip;
 
     // ── Entry point ───────────────────────────────────────────────────────────
 
-    public static void Play()
+    public static void Play(AudioClip voiceClip = null)
     {
         if (_played) return;
         _played = true;
 
-        var go = new GameObject("VaultCinematic");
+        var go  = new GameObject("VaultCinematic");
         DontDestroyOnLoad(go);
-        go.AddComponent<VaultCinematic>().StartCoroutine(
-            go.GetComponent<VaultCinematic>().RunCinematic());
+        var vc  = go.AddComponent<VaultCinematic>();
+        vc._voiceClip = voiceClip;
+        vc.StartCoroutine(vc.RunCinematic());
     }
 
     // ── Build UI ──────────────────────────────────────────────────────────────
@@ -99,16 +101,24 @@ public class VaultCinematic : MonoBehaviour
         yield return SlideBars(0f, 80f, 0.6f);
         yield return new WaitForSeconds(0.8f);
 
+        // Start voice right as text begins
+        if (_voiceClip != null)
+        {
+            var audioGo  = new GameObject("CinematicAudio");
+            var src      = audioGo.AddComponent<AudioSource>();
+            src.clip     = _voiceClip;
+            src.volume   = 2f;
+            src.spatialBlend = 0f; // 2D — not affected by distance
+            src.Play();
+            Destroy(audioGo, _voiceClip.length + 1f);
+        }
+
         // Phase 3 — Typewrite line 1
         yield return TypeLine(_line1Text, LINE1, 0.045f);
-        _cursor.gameObject.SetActive(false);
         yield return new WaitForSeconds(1.4f);
 
         // Phase 4 — Typewrite line 2 (slower, more weight)
-        UpdateCursorAnchor(0.40f);
-        _cursor.gameObject.SetActive(true);
         yield return TypeLine(_line2Text, LINE2, 0.055f);
-        _cursor.gameObject.SetActive(false);
 
         // Phase 5 — Hold with gentle breathing
         yield return Breathe(_line1Text, _line2Text, 3.5f);
@@ -117,6 +127,13 @@ public class VaultCinematic : MonoBehaviour
         yield return Fade(_root, 1f, 0f, 2.5f);
 
         Destroy(gameObject);
+
+        // End the game
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -151,21 +168,18 @@ public class VaultCinematic : MonoBehaviour
         label.text = "";
         label.gameObject.SetActive(true);
 
-        // Move cursor alongside the growing text
         for (int i = 0; i <= fullText.Length; i++)
         {
-            label.text = fullText[..i];
-
-            // Update cursor position to end of typed text
-            _cursor.text = label.text + "_";
-            _cursor.alpha = 1f;
+            // Inline cursor — just a pipe at the end, no duplicate text
+            label.text = fullText[..i] + (i < fullText.Length ? "|" : "");
 
             yield return new WaitForSeconds(charDelay);
 
-            // Vary speed slightly at punctuation for drama
             if (i < fullText.Length && (fullText[i] == '.' || fullText[i] == ','))
                 yield return new WaitForSeconds(0.25f);
         }
+
+        label.text = fullText; // clean final text, no cursor
     }
 
     IEnumerator Breathe(TextMeshProUGUI a, TextMeshProUGUI b, float dur)

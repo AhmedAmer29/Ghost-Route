@@ -38,6 +38,8 @@ public class PCInteraction : MonoBehaviour
         if (pcScreenRenderer != null && desktopTexture != null)
             pcScreenRenderer.material.mainTexture = desktopTexture;
 
+        AddScreenLight();
+
         BuildUI();
     }
 
@@ -105,6 +107,25 @@ public class PCInteraction : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible   = false;
         _animating = false;
+    }
+
+    // ── Screen light ──────────────────────────────────────────────────────────
+
+    void AddScreenLight()
+    {
+        if (pcScreenRenderer == null) return;
+
+        var lightGo = new GameObject("ScreenLight");
+        lightGo.transform.SetParent(pcScreenRenderer.transform);
+        lightGo.transform.localPosition = new Vector3(0f, 0f, 0.5f);
+        lightGo.transform.localRotation = Quaternion.identity;
+
+        var lt       = lightGo.AddComponent<Light>();
+        lt.type      = LightType.Point;
+        lt.color     = new Color(0.9f, 0.95f, 1f);
+        lt.intensity = 1.5f;
+        lt.range     = 3f;
+        lt.shadows   = LightShadows.None;
     }
 
     // ── UI ────────────────────────────────────────────────────────────────────

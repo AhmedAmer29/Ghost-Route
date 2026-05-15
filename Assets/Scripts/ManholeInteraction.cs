@@ -38,7 +38,13 @@ public class ManholeInteraction : MonoBehaviour
     [Tooltip("Tag on the player GameObject. Default 'Player'.")]
     public string playerTag = "Player";
 
-    [Tooltip("Optional UI prompt shown when the player is in range.")]
+    [Tooltip("Prompt label shown when the cover is closed.")]
+    public string openPromptText  = "Open";
+
+    [Tooltip("Prompt label shown when the cover is open.")]
+    public string closePromptText = "Close";
+
+    [Tooltip("Optional legacy UI prompt GameObject (leave empty to use InteractionManager instead).")]
     public GameObject interactPrompt;
 
     // --- runtime state ---
@@ -88,14 +94,31 @@ public class ManholeInteraction : MonoBehaviour
     {
         if (!IsPlayer(other)) return;
         playerInRange = true;
-        if (interactPrompt != null) interactPrompt.SetActive(true);
+        ShowCurrentPrompt();
     }
 
     void OnTriggerExit(Collider other)
     {
         if (!IsPlayer(other)) return;
         playerInRange = false;
-        if (interactPrompt != null) interactPrompt.SetActive(false);
+        HideCurrentPrompt();
+    }
+
+    void ShowCurrentPrompt()
+    {
+        string label = isOpen ? closePromptText : openPromptText;
+        if (InteractionManager.Instance != null)
+            InteractionManager.Instance.ShowPrompt(interactKey.ToString(), label);
+        else if (interactPrompt != null)
+            interactPrompt.SetActive(true);
+    }
+
+    void HideCurrentPrompt()
+    {
+        if (InteractionManager.Instance != null)
+            InteractionManager.Instance.HidePrompt();
+        else if (interactPrompt != null)
+            interactPrompt.SetActive(false);
     }
 
     bool IsPlayer(Collider other)
@@ -110,8 +133,13 @@ public class ManholeInteraction : MonoBehaviour
     void Update()
     {
         if (!playerInRange || isAnimating || manholeCover == null) return;
+
+        // Refresh prompt each frame so the label stays correct if state changed mid-frame
+        if (playerInRange) ShowCurrentPrompt();
+
         if (Input.GetKeyDown(interactKey))
         {
+            HideCurrentPrompt();
             StartCoroutine(Animate(isOpen ? CloseSequence() : OpenSequence()));
         }
     }
@@ -122,6 +150,9 @@ public class ManholeInteraction : MonoBehaviour
         yield return StartCoroutine(sequence);
         isAnimating = false;
         isOpen = !isOpen;
+
+        // Refresh prompt label now that open/close state flipped
+        if (playerInRange) ShowCurrentPrompt();
     }
 
     Vector3 GetHorizontalSlide()

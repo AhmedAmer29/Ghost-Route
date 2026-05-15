@@ -41,7 +41,7 @@ public class CutsceneManager : MonoBehaviour
     public float fadeDuration = 2f;
 
     [Header("Next Scene")]
-    public string nextSceneName = "";
+    public string nextSceneName = "Scene1";
 
     // ── Dialogue ──────────────────────────────────────────────────────────────
     [System.Serializable]

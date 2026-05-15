@@ -66,16 +66,30 @@ public class PlayerCamera : MonoBehaviour
         Cursor.visible = false;
         _xRotation = 0f;
 
-        float scale = target.lossyScale.y;
-        _eyeBase = eyeHeight * scale;
+        _movement = target.GetComponent<PlayerMovement>();
+        _state    = target.GetComponent<PlayerState>();
+        _mainCam  = GetComponent<Camera>();
+
+        // Calculate eye height in LOCAL space from the CharacterController's
+        // capsule dimensions.  The CC is defined in local space so this is
+        // scale-independent — no need to touch lossyScale at all.
+        var cc = target.GetComponent<CharacterController>();
+        if (cc != null)
+        {
+            float feetLocal = cc.center.y - cc.height * 0.5f; // local Y of feet
+            float headLocal = cc.center.y + cc.height * 0.5f; // local Y of head
+            _eyeBase = Mathf.Lerp(feetLocal, headLocal, 0.85f); // ~85 % up = eye level
+        }
+        else
+        {
+            // Fallback: treat eyeHeight as a local-space value
+            float scale = target.lossyScale.y > 0.001f ? target.lossyScale.y : 1f;
+            _eyeBase = eyeHeight / scale;
+        }
         _currentEyeH = _eyeBase;
 
-        _movement = target.GetComponent<PlayerMovement>();
-        _state = target.GetComponent<PlayerState>();
-        _mainCam = GetComponent<Camera>();
-
         transform.SetParent(target);
-        transform.localPosition = new Vector3(0f, _eyeBase, forwardOffset * scale);
+        transform.localPosition = new Vector3(0f, _eyeBase, forwardOffset);
         transform.localRotation = Quaternion.identity;
 
         SetupBodyCamera();
@@ -169,11 +183,12 @@ public class PlayerCamera : MonoBehaviour
 
         float scale = target.lossyScale.y;
 
+        // _currentEyeH is in LOCAL space — multiply by scale to get world offset for raycasts
         Vector3 worldEye = target.position
-                         + Vector3.up * (_currentEyeH + _bobOffsetY + breathY)
-                         + target.right * _bobOffsetX;
+                         + Vector3.up * (_currentEyeH * scale + _bobOffsetY * scale + breathY * scale)
+                         + target.right * (_bobOffsetX * scale);
 
-        float fwd = forwardOffset * scale;
+        float fwd = forwardOffset * scale; // world-space forward distance for wall raycasts
         if (Physics.Raycast(worldEye, target.forward, out RaycastHit fwdHit, fwd + wallPadding, wallMask, QueryTriggerInteraction.Ignore))
             fwd = Mathf.Max(0f, fwdHit.distance - wallPadding);
 
@@ -181,7 +196,9 @@ public class PlayerCamera : MonoBehaviour
         if (Physics.Raycast(worldEye, lookDir, out RaycastHit lookHit, fwd + wallPadding, wallMask, QueryTriggerInteraction.Ignore))
             fwd = Mathf.Max(0f, Mathf.Min(fwd, lookHit.distance - wallPadding));
 
-        transform.localPosition = new Vector3(_bobOffsetX, _currentEyeH + _bobOffsetY + breathY, fwd);
+        // fwd is in world space (used for raycasts above); convert back to local for localPosition
+        float fwdLocal = scale > 0.001f ? fwd / scale : fwd;
+        transform.localPosition = new Vector3(_bobOffsetX, _currentEyeH + _bobOffsetY + breathY, fwdLocal);
         transform.localRotation = Quaternion.Euler(_xRotation + breathPitch, 0f, 0f);
     }
 }

@@ -30,7 +30,7 @@ public class ManholeFallTrigger : MonoBehaviour
 
     [Header("Scene Transition")]
     [Tooltip("Scene name to load after the fade completes. Leave empty to skip. If the scene isn't in Build Settings, the player just stays in black.")]
-    public string nextSceneName = "sewer_maze";
+    public string nextSceneName = "Scene2";
 
     [Tooltip("Wait this long while fully black before loading the next scene (seconds, unscaled).")]
     public float preLoadHold = 0.4f;
@@ -229,6 +229,13 @@ public class ManholeFallTrigger : MonoBehaviour
             }
             // Make sure time is normal before loading so the next scene starts running
             Time.timeScale = 1f;
+
+            // The overlay survives the scene load (DontDestroyOnLoad). Attach a
+            // handler so it fades back in once the next scene is ready — otherwise
+            // the player is stuck on a black screen.
+            var reveal = canvas.gameObject.AddComponent<SceneFadeReveal>();
+            reveal.Init(blackImage, fadeDuration);
+
             SceneManager.LoadScene(nextSceneName);
             yield break;
         }

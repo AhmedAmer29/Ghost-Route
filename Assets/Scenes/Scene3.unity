@@ -18411,6 +18411,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 327041934}
+  punchRange: 8
+  punchCooldown: 0.35
+  kickRange: 8
+  kickCooldown: 0.45
 --- !u!114 &327041930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18495,6 +18499,11 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  maxStamina: 100
+  staminaDrainRate: 22
+  staminaRecoveryRate: 14
+  staminaRecoveryDelay: 1.2
+  currentStamina: 0
   currentSpeed: 0
   isGrounded: 0
   isCrouching: 0
@@ -76076,6 +76085,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.04, y: 0.023589995, z: 0.0013999997}
   m_Center: {x: -0.02, y: 0.011704998, z: 0.00069999986}
+--- !u!134 &1315209739
+PhysicMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  dynamicFriction: 0.6
+  staticFriction: 0.6
+  bounciness: 0
+  frictionCombine: 0
+  bounceCombine: 0
 --- !u!1 &1316376288 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -1522792451594035038, guid: 42ebc893d978bfe49b460632cfa903b0, type: 3}
@@ -100251,7 +100272,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1709590464}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 1315209739}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -100287,7 +100308,7 @@ MonoBehaviour:
     duration: 3
   - text: I guess I shall too... I don't get paid enough for this man
     duration: 2.2
-  nextScene: Scene4
+  nextScene: Scene5
   pauseAfterLast: 0.4
   fadeDuration: 1.8
   freezePlayerDuringDialogue: 1
@@ -121021,6 +121042,8 @@ MonoBehaviour:
   promptText: Take ladder
   grabLine: Found it. Now let's get that ladder up.
   grabDuration: 3
+  alreadyGrabbedLine: I already took it. What am I gonna do, take it again?
+  alreadyGrabbedDuration: 3.5
   ladderPrompt: {fileID: 1931838984}
 --- !u!1 &2016928239 stripped
 GameObject:
@@ -125780,6 +125803,8 @@ MonoBehaviour:
     m_RotationOrder: 4
   interactKey: 101
   playerTag: Player
+  openPromptText: Open
+  closePromptText: Close
   interactPrompt: {fileID: 0}
 --- !u!135 &2090372637
 SphereCollider:

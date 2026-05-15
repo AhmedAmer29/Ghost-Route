@@ -26,7 +26,14 @@ public class PlayerMovement : MonoBehaviour
     public float groundCheckDistance = 0.25f;
     public LayerMask groundMask      = ~0;
 
+    [Header("Stamina")]
+    public float maxStamina          = 100f;
+    public float staminaDrainRate    = 22f;   // per second while sprinting
+    public float staminaRecoveryRate = 14f;   // per second while not sprinting
+    public float staminaRecoveryDelay = 1.2f; // seconds of rest before recovery begins
+
     // Read by AnimationMoving and PlayerCamera
+    [HideInInspector] public float currentStamina;
     [HideInInspector] public float currentSpeed;
     [HideInInspector] public bool  isGrounded;
     [HideInInspector] public bool  isCrouching;
@@ -41,17 +48,20 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 _moveDamp;
     private float   _standHeight;
     private Vector3 _standCenter;
-    private float   _sprintFactor;   // 0–1, ramps up when Shift held
-    private float   _landingFatigue; // 0–1, spikes on landing and fades
+    private float   _sprintFactor;       // 0–1, ramps up when Shift held
+    private float   _landingFatigue;     // 0–1, spikes on landing and fades
     private bool    _wasGrounded;
+    private float   _staminaRestTimer;   // counts up while not sprinting before recovery starts
+    private bool    _exhausted;          // true when stamina hit 0; can't sprint until partially recovered
 
     void Start()
     {
-        _controller  = GetComponent<CharacterController>();
-        _velocity.y  = -2f;
-        _standHeight = _controller.height;
-        _standCenter = _controller.center;
-        _wasGrounded = true;
+        _controller    = GetComponent<CharacterController>();
+        _velocity.y    = -2f;
+        _standHeight   = _controller.height;
+        _standCenter   = _controller.center;
+        _wasGrounded   = true;
+        currentStamina = maxStamina;
     }
 
     void Update()
@@ -62,6 +72,7 @@ public class PlayerMovement : MonoBehaviour
         HandleJump();
         ApplyGravity();
         UpdateExertion();
+        UpdateStamina();
         _wasGrounded = isGrounded;
     }
 
@@ -115,7 +126,7 @@ public class PlayerMovement : MonoBehaviour
         Vector3 raw = (transform.right * h + transform.forward * v).normalized;
 
         bool shiftHeld = Input.GetKey(KeyCode.LeftShift) && raw.magnitude > 0.1f;
-        bool wantsRun  = shiftHeld && !isCrouching;
+        bool wantsRun  = shiftHeld && !isCrouching && !_exhausted;
 
         // Sprint ramps up over sprintRampTime so you feel the push into a run
         _sprintFactor = wantsRun
@@ -153,6 +164,34 @@ public class PlayerMovement : MonoBehaviour
     {
         _velocity.y += gravity * Time.deltaTime;
         _controller.Move(_velocity * Time.deltaTime);
+    }
+
+    void UpdateStamina()
+    {
+        if (isRunning)
+        {
+            // Drain while sprinting
+            _staminaRestTimer = 0f;
+            currentStamina    = Mathf.Max(0f, currentStamina - staminaDrainRate * Time.deltaTime);
+
+            if (currentStamina <= 0f)
+                _exhausted = true;
+        }
+        else
+        {
+            // Count rest time before recovery kicks in
+            _staminaRestTimer += Time.deltaTime;
+
+            if (_staminaRestTimer >= staminaRecoveryDelay)
+            {
+                currentStamina = Mathf.Min(maxStamina, currentStamina + staminaRecoveryRate * Time.deltaTime);
+
+                // Clear exhausted flag once stamina reaches 25 % so the player
+                // can sprint again without having to fully recover
+                if (_exhausted && currentStamina >= maxStamina * 0.25f)
+                    _exhausted = false;
+            }
+        }
     }
 
     void UpdateExertion()

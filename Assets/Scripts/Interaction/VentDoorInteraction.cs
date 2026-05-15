@@ -23,7 +23,7 @@ public class VentDoorInteraction : MonoBehaviour
     };
 
     [Header("Scene Transition")]
-    public string nextScene      = "Scene4";
+    public string nextScene      = "Scene5";
     public float  pauseAfterLast = 0.4f;
     public float  fadeDuration   = 2f;
 

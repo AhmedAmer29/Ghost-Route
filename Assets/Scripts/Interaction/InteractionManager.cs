@@ -307,6 +307,20 @@ public class InteractionManager : MonoBehaviour
         }
         _fadePanel.color = Color.black;
         SceneManager.LoadScene(sceneName);
+
+        // This manager is DontDestroyOnLoad, so the coroutine survives the load.
+        // Wait a frame for the new scene to be active, then fade back in —
+        // otherwise the player is stuck on a black screen.
+        yield return null;
+        t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            _fadePanel.color = new Color(0f, 0f, 0f, Mathf.SmoothStep(1f, 0f, t / duration));
+            yield return null;
+        }
+        _fadePanel.color = new Color(0f, 0f, 0f, 0f);
+        _fadePanel.gameObject.SetActive(false);
     }
 
     void FadeGroup(CanvasGroup grp, float target, float dur, ref Coroutine handle)

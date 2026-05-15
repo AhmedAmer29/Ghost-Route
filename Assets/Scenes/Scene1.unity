@@ -35238,8 +35238,8 @@ MonoBehaviour:
     m_Bits: 4294967295
   wallPadding: 0.2
   bodyLayerName: PlayerBody
-  bodyCameraNearClip: 0.08
-  downwardClamp: 45
+  bodyCameraNearClip: 0.04
+  downwardClamp: 60
 --- !u!114 &510623007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -84664,6 +84664,11 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  maxStamina: 100
+  staminaDrainRate: 15
+  staminaRecoveryRate: 14
+  staminaRecoveryDelay: 1.2
+  currentStamina: 100
   currentSpeed: 0
   isGrounded: 0
   isCrouching: 0
@@ -84726,6 +84731,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 1221188148}
+  punchRange: 8
+  punchCooldown: 0.35
+  kickRange: 8
+  kickCooldown: 0.45
 --- !u!1 &1222284722 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4984458530049141862, guid: 15e94ec4e9ae5f54988155d0d3b5cd5d, type: 3}

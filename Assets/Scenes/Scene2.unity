@@ -5370,25 +5370,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_AgentTypeID: 0
-  m_CollectObjects: 0
-  m_Size: {x: 10, y: 10, z: 10}
-  m_Center: {x: 0, y: 2, z: 0}
-  m_LayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_UseGeometry: 0
-  m_DefaultArea: 0
-  m_GenerateLinks: 0
-  m_IgnoreNavMeshAgent: 1
-  m_IgnoreNavMeshObstacle: 1
-  m_OverrideTileSize: 0
-  m_TileSize: 256
-  m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.06666667
-  m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 0}
-  m_BuildHeightMesh: 0
 --- !u!64 &311767808
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -6176,25 +6157,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_AgentTypeID: 0
-  m_CollectObjects: 0
-  m_Size: {x: 10, y: 10, z: 10}
-  m_Center: {x: 0, y: 2, z: 0}
-  m_LayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_UseGeometry: 0
-  m_DefaultArea: 0
-  m_GenerateLinks: 0
-  m_IgnoreNavMeshAgent: 1
-  m_IgnoreNavMeshObstacle: 1
-  m_OverrideTileSize: 0
-  m_TileSize: 256
-  m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.06666667
-  m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 0}
-  m_BuildHeightMesh: 0
 --- !u!114 &378873627
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6207,25 +6169,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_AgentTypeID: 0
-  m_CollectObjects: 0
-  m_Size: {x: 10, y: 10, z: 10}
-  m_Center: {x: 0, y: 2, z: 0}
-  m_LayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_UseGeometry: 0
-  m_DefaultArea: 0
-  m_GenerateLinks: 0
-  m_IgnoreNavMeshAgent: 1
-  m_IgnoreNavMeshObstacle: 1
-  m_OverrideTileSize: 0
-  m_TileSize: 256
-  m_OverrideVoxelSize: 1
-  m_VoxelSize: 0.01
-  m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: da97d5bec96c09a45a198118f62dc81e, type: 2}
-  m_BuildHeightMesh: 0
 --- !u!64 &378873628
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -8600,7 +8543,7 @@ MonoBehaviour:
   target: {fileID: 1415982011}
   mouseSensitivity: 2
   verticalClamp: 80
-  eyeHeight: 1.6
+  eyeHeight: 2
   forwardOffset: 0.2
   enableBob: 1
   bobFrequency: 5
@@ -8651,9 +8594,9 @@ MonoBehaviour:
   fogColor: {r: 0.005, g: 0.005, b: 0.008, a: 1}
   killOtherDirectionalLights: 1
   killReflectionContribution: 1
-  intensity: 1.1
-  range: 15
-  spotAngle: 34
+  intensity: 1.5
+  range: 30
+  spotAngle: 50
   innerSpotAngle: 16
   color: {r: 1, g: 0.95, b: 0.85, a: 1}
   shadows: 1
@@ -16250,25 +16193,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_AgentTypeID: 0
-  m_CollectObjects: 0
-  m_Size: {x: 10, y: 10, z: 10}
-  m_Center: {x: 0, y: 2, z: 0}
-  m_LayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_UseGeometry: 0
-  m_DefaultArea: 0
-  m_GenerateLinks: 0
-  m_IgnoreNavMeshAgent: 1
-  m_IgnoreNavMeshObstacle: 1
-  m_OverrideTileSize: 0
-  m_TileSize: 256
-  m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.06666667
-  m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 0}
-  m_BuildHeightMesh: 0
 --- !u!64 &978778539
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -17526,6 +17450,75 @@ MonoBehaviour:
   isReal: 1
   masterSystem: {fileID: 626954411}
   interactionDistance: 2.5
+--- !u!1 &1046474154
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1046474157}
+  - component: {fileID: 1046474156}
+  - component: {fileID: 1046474155}
+  m_Layer: 0
+  m_Name: Scene2ExitTrigger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1046474155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1046474154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ce11e54f011f414ab5d0bac5efadb03, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nextSceneName: Scene3
+  fadeDuration: 1.5
+  holdBlackDuration: 0.5
+--- !u!65 &1046474156
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1046474154}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &1046474157
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1046474154}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -26.35, y: 1.5, z: 174}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1048582888
 GameObject:
   m_ObjectHideFlags: 0
@@ -22236,13 +22229,13 @@ MonoBehaviour:
     m_Bits: 4294967295
   maxStamina: 100
   staminaDrainRate: 15
-  staminaRegenRate: 20
-  staminaRegenDelay: 1.5
+  staminaRecoveryRate: 14
+  staminaRecoveryDelay: 1.2
+  currentStamina: 100
   currentSpeed: 0
   isGrounded: 0
   isCrouching: 0
   isRunning: 0
-  currentStamina: 100
   exertion: 0
 --- !u!143 &1415982019
 CharacterController:
@@ -22251,7 +22244,7 @@ CharacterController:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1415982009}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 1834497900}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -23036,8 +23029,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetValveName: Pipe_P (1)
   interactionDistance: 4
-  spamRequirement: 100
-  spamPower: 5
+  spamRequirement: 200
+  spamPower: 2.5
   decayRate: 7
   valveRotationAxis: {x: 0, y: 0, z: 1}
   maxValveRotation: 720
@@ -27640,6 +27633,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!134 &1834497900
+PhysicMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  dynamicFriction: 0.6
+  staticFriction: 0.6
+  bounciness: 0
+  frictionCombine: 0
+  bounceCombine: 0
 --- !u!1 &1839134554 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 53b7abffd65270d4ebbbb4def0f350e5, type: 3}
@@ -29512,9 +29517,9 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 0.95, b: 0.85, a: 1}
-  m_Intensity: 1.1
-  m_Range: 15
-  m_SpotAngle: 34
+  m_Intensity: 1.5
+  m_Range: 30
+  m_SpotAngle: 50
   m_InnerSpotAngle: 16
   m_CookieSize: 10
   m_Shadows:
@@ -31437,25 +31442,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_AgentTypeID: 0
-  m_CollectObjects: 0
-  m_Size: {x: 10, y: 10, z: 10}
-  m_Center: {x: 0, y: 2, z: 0}
-  m_LayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_UseGeometry: 0
-  m_DefaultArea: 0
-  m_GenerateLinks: 0
-  m_IgnoreNavMeshAgent: 1
-  m_IgnoreNavMeshObstacle: 1
-  m_OverrideTileSize: 0
-  m_TileSize: 256
-  m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.06666667
-  m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 0}
-  m_BuildHeightMesh: 0
 --- !u!64 &2046147271
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -33189,3 +33175,4 @@ SceneRoots:
   - {fileID: 2093520375}
   - {fileID: 1890864691}
   - {fileID: 1372070232}
+  - {fileID: 1046474157}

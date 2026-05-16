@@ -14,6 +14,9 @@ public class ProceduralRope : MonoBehaviour
     public float swaySpeed = 1.0f;
     public float swayAmount = 0.2f;
 
+    [Header("Material")]
+    [SerializeField] private Material ropeMaterial;
+
     private LineRenderer _line;
 
     void Start()
@@ -23,17 +26,8 @@ public class ProceduralRope : MonoBehaviour
         _line.startWidth = thickness;
         _line.endWidth = thickness;
 
-        // Apply Rope Material
-        string matPath = "Assets/Materials/Sewer/Rope_Mat.mat";
-        Material mat = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>(matPath);
-        if (mat == null)
-        {
-            mat = new Material(Shader.Find("Standard"));
-            Texture2D tex = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Materials/Sewer/Rope_Albedo.png");
-            if (tex != null) mat.mainTexture = tex;
-            UnityEditor.AssetDatabase.CreateAsset(mat, matPath);
-        }
-        _line.material = mat;
+        if (ropeMaterial != null)
+            _line.material = ropeMaterial;
     }
 
     void Update()

@@ -1,6 +1,8 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Playables; // Required for Timeline
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Main2GameManager : MonoBehaviour
 {
@@ -32,6 +34,13 @@ public class Main2GameManager : MonoBehaviour
     [Header("Sleep Settings")]
     [Tooltip("Seconds of darkness before the alarm fires — each second plays one tick")]
     public int sleepTicks = 5;
+
+    [Header("Cutscene End")]
+    [Tooltip("Scene loaded once the wakeup cutscene finishes")]
+    public string nextSceneName = "Scene1";
+
+    [Tooltip("Fade-to-black duration when the cutscene ends")]
+    public float endFadeDuration = 1.5f;
 
     void Awake() => Instance = this;
 
@@ -118,8 +127,55 @@ public class Main2GameManager : MonoBehaviour
             wakeupTimeline.time = 0;
             wakeupTimeline.Evaluate(); // Snap character to first keyframe immediately
             wakeupTimeline.Play();
+
+            // 10. Wait for the cutscene to finish, then fade out and load Scene1
+            yield return new WaitForSeconds((float)wakeupTimeline.duration);
+            Debug.Log("[Main2GameManager] Wakeup cutscene finished — loading " + nextSceneName);
+            yield return StartCoroutine(FadeAndLoadNextScene());
         }
         else
             Debug.LogWarning("Wakeup Timeline is not assigned in Main2GameManager!");
+    }
+
+    // ── Fade to black and load the next scene once the cutscene ends ─────────
+    IEnumerator FadeAndLoadNextScene()
+    {
+        GameObject canvasGO = new GameObject("Main2FadeCanvas");
+        DontDestroyOnLoad(canvasGO);
+        Canvas canvas = canvasGO.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 5000;
+        canvasGO.AddComponent<CanvasScaler>();
+
+        GameObject imgGO = new GameObject("FadeImage");
+        imgGO.transform.SetParent(canvasGO.transform, false);
+        Image img = imgGO.AddComponent<Image>();
+        img.color = new Color(0f, 0f, 0f, 0f);
+        RectTransform rt = img.rectTransform;
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+
+        float t = 0f;
+        while (t < endFadeDuration)
+        {
+            t += Time.unscaledDeltaTime;
+            img.color = new Color(0f, 0f, 0f, Mathf.Clamp01(t / endFadeDuration));
+            yield return null;
+        }
+        img.color = Color.black;
+
+        if (Application.CanStreamedLevelBeLoaded(nextSceneName))
+        {
+            // The overlay survives the scene load — SceneFadeReveal fades it back
+            // in once the next scene is ready (no stuck black screen).
+            canvasGO.AddComponent<SceneFadeReveal>().Init(img, endFadeDuration);
+            SceneManager.LoadScene(nextSceneName);
+        }
+        else
+        {
+            Debug.LogError("[Main2GameManager] Scene '" + nextSceneName + "' is not in Build Settings.");
+        }
     }
 }

@@ -47393,7 +47393,7 @@ MonoBehaviour:
   maxAngle: 15
   tiltAngle: 47.9
   coneVisualLength: 0.4
-  coneDetectionLength: 3
+  coneDetectionLength: 6
   coneAngle: 20.6
   coneColor: {r: 1, g: 0.02, b: 0.02, a: 1}
   coneTransparency: 0.677
